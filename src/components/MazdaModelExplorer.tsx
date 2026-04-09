@@ -347,7 +347,11 @@ function TrimPricingSection({
                 <TrimPricingCard
                   trim={trim}
                   previousTrimName={
-                    index > 0 ? trims[index - 1]?.name ?? null : null
+                    trim.hidePreviousTrimComparison
+                      ? null
+                      : index > 0
+                        ? trims[index - 1]?.name ?? null
+                        : null
                   }
                 />
               </li>
