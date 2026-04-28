@@ -50,6 +50,349 @@ type TrimPerfSpec = {
   trq: string;
 };
 
+const MODEL_DIMENSIONS: Record<string, TrimFeatureItem[]> = {
+  "mazda3-sedan": [
+    {
+      name: "Exterior size",
+      description: "Length 183.5 in, width 70.7 in, height 56.9 in.",
+    },
+    {
+      name: "Wheelbase",
+      description: "107.3 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "13.2 cu ft trunk volume.",
+    },
+  ],
+  "mazda3-hatchback": [
+    {
+      name: "Exterior size",
+      description: "Length 175.6 in, width 70.7 in, height 56.7 in.",
+    },
+    {
+      name: "Wheelbase",
+      description: "107.3 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "20.1 cu ft behind rear seats.",
+    },
+  ],
+  "cx-30": [
+    {
+      name: "Exterior size",
+      description: "Length 173.0 in, width 70.7 in, height 61.7 in.",
+    },
+    {
+      name: "Wheelbase",
+      description: "104.5 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "20.2 cu ft behind rear seats.",
+    },
+  ],
+  "cx-50": [
+    {
+      name: "Exterior size",
+      description: "Length 185.8 in, width 75.6 in, height 63.5 in.",
+    },
+    {
+      name: "Wheelbase",
+      description: "110.8 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "31.4 cu ft behind rear seats.",
+    },
+  ],
+  "cx-5": [
+    {
+      name: "Exterior size",
+      description: "Length 180.1 in, width 72.6 in, height 65.4 in.",
+    },
+    {
+      name: "Wheelbase",
+      description: "106.2 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "30.8 cu ft behind rear seats.",
+    },
+  ],
+  "cx-70": [
+    {
+      name: "Exterior size",
+      description: "Length 201.6 in, width 77.6 in, height 68.2 in.",
+    },
+    {
+      name: "Wheelbase",
+      description: "122.8 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "39.6 cu ft behind rear seats.",
+    },
+  ],
+  "cx-90": [
+    {
+      name: "Exterior size",
+      description: "Length 201.6 in, width 77.6 in, height 68.7 in.",
+    },
+    {
+      name: "Wheelbase",
+      description: "122.8 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "14.9 cu ft behind third row.",
+    },
+  ],
+  "mx-5-miata": [
+    {
+      name: "Exterior size",
+      description: "Length 154.1 in, width 68.3 in, height 48.6 in.",
+    },
+    {
+      name: "Wheelbase",
+      description: "90.9 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "4.6 cu ft trunk volume.",
+    },
+  ],
+  "mx-5-miata-rf": [
+    {
+      name: "Exterior size",
+      description: "Length 154.1 in, width 68.3 in, height 49.0 in.",
+    },
+    {
+      name: "Wheelbase",
+      description: "90.9 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "4.6 cu ft trunk volume.",
+    },
+  ],
+  "cx-50-hybrid": [
+    {
+      name: "Exterior size",
+      description: "Length 185.8 in, width 75.6 in, height 63.9 in.",
+    },
+    {
+      name: "Wheelbase",
+      description: "110.8 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "29.2 cu ft behind rear seats.",
+    },
+  ],
+};
+
+const MODEL_DIMENSION_DIFF_2026: Record<string, TrimFeatureItem[]> = {
+  "cx-5": [
+    {
+      name: "Difference vs 2025",
+      description:
+        "Length +4.5 in and wheelbase +4.5 in vs 2025 (cargo floor is also about 2.0 in longer).",
+    },
+  ],
+};
+
+type ModelColorPalette = {
+  core: string[];
+  premium: string[];
+  topTrim: string[];
+};
+
+type ModelTrimColorAvailability = Record<string, string[]>;
+
+const MODEL_COLOR_PALETTES: Record<string, ModelColorPalette> = {
+  "mazda3-sedan": {
+    core: [
+      "Jet Black Mica + Black Cloth",
+      "Deep Crystal Blue Mica + Black Cloth",
+    ],
+    premium: [
+      "Machine Gray Metallic + Greige Leatherette",
+      "Snowflake White Pearl Mica + Black Leatherette",
+    ],
+    topTrim: [
+      "Soul Red Crystal Metallic + Red Leather",
+      "Polymetal Gray Metallic + Terracotta Leather",
+    ],
+  },
+  "mazda3-hatchback": {
+    core: [
+      "Jet Black Mica + Black Cloth",
+      "Deep Crystal Blue Mica + Black Cloth",
+    ],
+    premium: [
+      "Polymetal Gray Metallic + Red Leatherette",
+      "Machine Gray Metallic + Black Leatherette",
+    ],
+    topTrim: [
+      "Soul Red Crystal Metallic + Red Leather",
+      "Aero Gray Metallic + Black Leather",
+    ],
+  },
+  "cx-30": {
+    core: [
+      "Jet Black Mica + Black Cloth",
+      "Deep Crystal Blue Mica + Black Cloth",
+    ],
+    premium: [
+      "Platinum Quartz Metallic + Greige Leatherette",
+      "Snowflake White Pearl Mica + Black Leatherette",
+    ],
+    topTrim: [
+      "Soul Red Crystal Metallic + White Leather",
+      "Machine Gray Metallic + Terracotta Leather",
+    ],
+  },
+  "cx-50": {
+    core: [
+      "Jet Black Mica + Black Leatherette",
+      "Ingot Blue Metallic + Black Leatherette",
+    ],
+    premium: [
+      "Polymetal Gray Metallic + Black Leather",
+      "Wind Chill Pearl + Black Leather",
+    ],
+    topTrim: [
+      "Zircon Sand Metallic + Terracotta Leather",
+      "Machine Gray Metallic + Black Leather",
+    ],
+  },
+  "cx-50-hybrid": {
+    core: [
+      "Jet Black Mica + Black Leatherette",
+      "Polymetal Gray Metallic + Black Leatherette",
+    ],
+    premium: [
+      "Wind Chill Pearl + Black Leather",
+      "Ingot Blue Metallic + Black Leather",
+    ],
+    topTrim: [
+      "Soul Red Crystal Metallic + Black Leather",
+      "Machine Gray Metallic + Black Leather",
+    ],
+  },
+  "cx-5": {
+    core: ["Jet Black Mica + Black Cloth", "Navy Blue Mica + Black Cloth"],
+    premium: [
+      "Rhodium White Premium + Black Leatherette & Embossed Microsuede",
+      "Machine Gray Metallic + Black Leatherette & Embossed Microsuede",
+    ],
+    topTrim: [
+      "Soul Red Crystal Metallic + Sport Tan Leather",
+      "Aero Gray Metallic + Black Leather",
+      "Polymetal Gray Metallic + Sport Tan Leather",
+    ],
+  },
+  "cx-70": {
+    core: [
+      "Jet Black Mica + Black Leatherette",
+      "Rhodium White Metallic + Black Leatherette",
+    ],
+    premium: [
+      "Polymetal Gray Metallic + Black Leather",
+      "Melting Copper Metallic + Tan Nappa Leather",
+    ],
+    topTrim: [
+      "Soul Red Crystal Metallic + Black Nappa Leather",
+      "Zircon Sand Metallic + Tan Nappa Leather",
+    ],
+  },
+  "cx-90": {
+    core: [
+      "Jet Black Mica + Black Leatherette",
+      "Sonic Silver Metallic + Black Leatherette",
+    ],
+    premium: [
+      "Platinum Quartz Metallic + Black Leather",
+      "Rhodium White Metallic + Tan Nappa Leather",
+    ],
+    topTrim: [
+      "Artisan Red Premium + White Nappa Leather",
+      "Machine Gray Metallic + Black Nappa Leather",
+    ],
+  },
+  "mx-5-miata": {
+    core: ["Jet Black Mica + Black Cloth", "Aero Gray Metallic + Black Cloth"],
+    premium: [
+      "Snowflake White Pearl Mica + Black Leather",
+      "Deep Crystal Blue Mica + Black Leather",
+    ],
+    topTrim: [
+      "Soul Red Crystal Metallic + Tan Nappa Leather",
+      "Machine Gray Metallic + Black Leather",
+    ],
+  },
+  "mx-5-miata-rf": {
+    core: ["Jet Black Mica + Black Cloth", "Aero Gray Metallic + Black Cloth"],
+    premium: [
+      "Snowflake White Pearl Mica + Black Leather",
+      "Machine Gray Metallic + Black Leather",
+    ],
+    topTrim: [
+      "Soul Red Crystal Metallic + Tan Nappa Leather",
+      "Deep Crystal Blue Mica + Black Leather",
+    ],
+  },
+};
+
+const MODEL_TRIM_COLOR_AVAILABILITY: Record<string, ModelTrimColorAvailability> = {
+  "cx-5": {
+    "25-s": [
+      "Jet Black Mica + Black Cloth",
+      "Rhodium White Premium + Black Cloth",
+      "Navy Blue Mica + Black Cloth",
+      "Machine Gray Metallic + Black Cloth",
+    ],
+    "25-s-select": [
+      "Jet Black Mica + Black Leatherette & Embossed Microsuede",
+      "Rhodium White Premium + Black Leatherette & Embossed Microsuede",
+      "Navy Blue Mica + Black Leatherette & Embossed Microsuede",
+      "Soul Red Crystal Metallic + Black Leatherette & Embossed Microsuede",
+      "Aero Gray Metallic + Black Leatherette & Embossed Microsuede",
+      "Polymetal Gray Metallic + Black Leatherette & Embossed Microsuede",
+      "Machine Gray Metallic + Black Leatherette & Embossed Microsuede",
+    ],
+    "25-s-preferred": [
+      "Jet Black Mica + Black Leatherette & Embossed Microsuede",
+      "Rhodium White Premium + Black Leatherette & Embossed Microsuede",
+      "Navy Blue Mica + Black Leatherette & Embossed Microsuede",
+      "Soul Red Crystal Metallic + Black Leatherette & Embossed Microsuede",
+      "Aero Gray Metallic + Black Leatherette & Embossed Microsuede",
+      "Polymetal Gray Metallic + Black Leatherette & Embossed Microsuede",
+      "Machine Gray Metallic + Black Leatherette & Embossed Microsuede",
+    ],
+    "25-s-premium": [
+      "Jet Black Mica + Black Leather",
+      "Rhodium White Premium + Black Leather",
+      "Navy Blue Mica + Black Leather",
+      "Soul Red Crystal Metallic + Sport Tan Leather",
+      "Aero Gray Metallic + Black Leather",
+      "Polymetal Gray Metallic + Sport Tan Leather",
+      "Machine Gray Metallic + Black Leather",
+    ],
+    "25-s-premium-plus": [
+      "Jet Black Mica + Black Leather",
+      "Rhodium White Premium + Black Leather",
+      "Navy Blue Mica + Black Leather",
+      "Soul Red Crystal Metallic + Sport Tan Leather",
+      "Aero Gray Metallic + Black Leather",
+      "Polymetal Gray Metallic + Sport Tan Leather",
+      "Machine Gray Metallic + Black Leather",
+    ],
+  },
+};
+
 function getTrimPerfSpec(modelId: string, trimId: string): TrimPerfSpec | null {
   if (modelId === "mazda3-sedan" || modelId === "mazda3-hatchback") {
     return trimId.includes("turbo")
@@ -85,6 +428,234 @@ function getTrimPerfSpec(modelId: string, trimId: string): TrimPerfSpec | null {
     return { eng: "2.0", hp: "181", trq: "151" };
   }
   return null;
+}
+
+function getModelDimensions(modelId: string): TrimFeatureItem[] {
+  return MODEL_DIMENSIONS[modelId] ?? [];
+}
+
+function getModelDimensionDiff(modelId: string, year: ModelYear): TrimFeatureItem[] {
+  if (year !== 2026) return [];
+  return MODEL_DIMENSION_DIFF_2026[modelId] ?? [];
+}
+
+function getColorCombinationsForTrim(
+  modelId: string,
+  trimId: string,
+  trimName: string,
+): string[] {
+  const explicitAvailability = MODEL_TRIM_COLOR_AVAILABILITY[modelId]?.[trimId];
+  if (explicitAvailability && explicitAvailability.length > 0) {
+    return explicitAvailability;
+  }
+
+  const palette = MODEL_COLOR_PALETTES[modelId];
+  if (!palette) return [];
+
+  const tierSeed = `${trimId} ${trimName}`.toLowerCase();
+  if (
+    tierSeed.includes("premium plus") ||
+    tierSeed.includes("turbo s premium plus") ||
+    tierSeed.includes("grand touring")
+  ) {
+    return [...palette.premium, ...palette.topTrim];
+  }
+  if (
+    tierSeed.includes("premium") ||
+    tierSeed.includes("carbon") ||
+    tierSeed.includes("preferred")
+  ) {
+    return [...palette.core, ...palette.premium];
+  }
+  return [...palette.core];
+}
+
+type ColorCombination = {
+  exterior: string;
+  interior: string;
+};
+
+type TrimColorCombinationFeature = {
+  name: string;
+  combinations: ColorCombination[];
+  note?: string;
+};
+
+type TrimWheelSpecFeature = {
+  name: string;
+  size: string;
+  finish: string;
+  note?: string;
+};
+
+function toColorCombination(combo: string): ColorCombination | null {
+  const [exterior, interior] = combo.split(" + ");
+  if (!exterior || !interior) return null;
+  return { exterior, interior };
+}
+
+function colorHexFromName(colorName: string): string {
+  const name = colorName.toLowerCase();
+  if (name.includes("jet black") || name.includes("black")) return "#1f2937";
+  if (name.includes("white")) return "#f5f5f4";
+  if (name.includes("soul red") || name.includes("artisan red")) return "#b91c1c";
+  if (name.includes("blue")) return "#1e3a8a";
+  if (name.includes("machine gray") || name.includes("aero gray")) return "#6b7280";
+  if (name.includes("polymetal gray")) return "#4b5563";
+  if (name.includes("platinum quartz")) return "#d6d3d1";
+  if (name.includes("zircon sand")) return "#a8a29e";
+  if (name.includes("copper") || name.includes("tan") || name.includes("brown")) return "#92400e";
+  if (name.includes("silver")) return "#9ca3af";
+  return "#71717a";
+}
+
+function getModelTrimColorFeatures(
+  modelId: string,
+  trims: ModelTrim[],
+): TrimColorCombinationFeature[] {
+  return trims.map((trim) => {
+    const combinations = getColorCombinationsForTrim(
+      modelId,
+      trim.id,
+      trim.name,
+    )
+      .map(toColorCombination)
+      .filter((item): item is ColorCombination => item !== null);
+
+    return {
+      name: trim.name,
+      combinations,
+      note:
+        combinations.length > 0
+          ? undefined
+          : "Please confirm current exterior/interior combinations with Mazda USA build-and-price.",
+    };
+  });
+}
+
+function getWheelSpecForTrim(
+  modelId: string,
+  trimId: string,
+  trimName: string,
+): Omit<TrimWheelSpecFeature, "name"> {
+  const key = `${trimId} ${trimName}`.toLowerCase();
+
+  if (modelId === "mazda3-sedan" || modelId === "mazda3-hatchback") {
+    if (key.includes("turbo")) {
+      return { size: '18"', finish: "Black Metallic alloy" };
+    }
+    if (key.includes("preferred") || key.includes("carbon") || key.includes("premium")) {
+      return { size: '18"', finish: "Alloy (Black / Dark finish by package)" };
+    }
+    return { size: '16"', finish: "Silver Metallic alloy" };
+  }
+
+  if (modelId === "cx-30") {
+    if (key.includes("s ") && !key.includes("select")) {
+      return { size: '16"', finish: "Gray Metallic alloy" };
+    }
+    return { size: '18"', finish: "Black Metallic alloy" };
+  }
+
+  if (modelId === "cx-50") {
+    if (key.includes("meridian")) {
+      return { size: '18"', finish: "Black Metallic alloy (all-terrain setup)" };
+    }
+    if (key.includes("turbo") || key.includes("premium")) {
+      return { size: '20"', finish: "Black Metallic alloy" };
+    }
+    return { size: '17"', finish: "Black Metallic alloy" };
+  }
+
+  if (modelId === "cx-50-hybrid") {
+    if (key.includes("premium plus")) {
+      return { size: '19"', finish: "Black Metallic alloy" };
+    }
+    return { size: '17"', finish: "Black Metallic alloy" };
+  }
+
+  if (modelId === "cx-5") {
+    if (key.includes("premium") || key.includes("preferred")) {
+      return { size: '19"', finish: "Black Metallic alloy" };
+    }
+    return { size: '17"', finish: "Gray Metallic alloy" };
+  }
+
+  if (modelId === "cx-70" || modelId === "cx-90") {
+    if (key.includes("premium plus") || key.includes("turbo s premium")) {
+      return { size: '21"', finish: "Machined with Black Metallic accents" };
+    }
+    return { size: '19"', finish: "Silver Metallic alloy" };
+  }
+
+  if (modelId === "mx-5-miata" || modelId === "mx-5-miata-rf") {
+    if (key.includes("sport")) {
+      return { size: '16"', finish: "Dark Silver Metallic alloy" };
+    }
+    return { size: '17"', finish: "Gunmetal alloy" };
+  }
+
+  return {
+    size: "N/A",
+    finish: "Verify on Mazda USA build-and-price",
+    note: "Wheel specification varies by package and market.",
+  };
+}
+
+function getModelTrimWheelSpecs(
+  modelId: string,
+  trims: ModelTrim[],
+): TrimWheelSpecFeature[] {
+  return trims.map((trim) => {
+    const wheel = getWheelSpecForTrim(modelId, trim.id, trim.name);
+    return {
+      name: trim.name,
+      size: wheel.size,
+      finish: wheel.finish,
+      note: wheel.note,
+    };
+  });
+}
+
+function TrimColorCombinationGrid({
+  item,
+}: {
+  item: TrimColorCombinationFeature;
+}) {
+  return (
+    <li className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-900/50">
+      <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+        {item.name}
+      </p>
+      {item.note ? (
+        <p className="mt-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+          {item.note}
+        </p>
+      ) : (
+        <ul className="mt-3 flex flex-col gap-2">
+          {item.combinations.map((combo, idx) => (
+            <li key={`${item.name}-${combo.exterior}-${combo.interior}-${idx}`}>
+              <div className="flex items-center gap-2">
+                <span
+                  className="h-4 w-4 rounded border border-zinc-300 dark:border-zinc-600"
+                  style={{ backgroundColor: colorHexFromName(combo.exterior) }}
+                  title={`Exterior: ${combo.exterior}`}
+                />
+                <span
+                  className="h-4 w-4 rounded border border-zinc-300 dark:border-zinc-600"
+                  style={{ backgroundColor: colorHexFromName(combo.interior) }}
+                  title={`Interior: ${combo.interior}`}
+                />
+                <span className="text-xs text-zinc-700 dark:text-zinc-300">
+                  {combo.exterior} + {combo.interior}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
 }
 
 function TrimPerfRow({ spec }: { spec: TrimPerfSpec }) {
@@ -203,7 +774,10 @@ export function MazdaModelExplorer() {
     : undefined;
 
   return (
-    <div className="mx-auto w-full min-w-0 max-w-6xl px-3 pt-[max(2rem,env(safe-area-inset-top))] pb-8 sm:px-6 sm:pt-10 sm:pb-10 lg:px-8">
+    <div
+      className="mx-auto w-full min-w-0 max-w-6xl px-3 pt-[max(2rem,env(safe-area-inset-top))] pb-8 sm:px-6 sm:pt-10 sm:pb-10 lg:px-8"
+      suppressHydrationWarning
+    >
       <header className="mb-8 text-center sm:mb-10 md:mb-12">
         <p className="text-base font-semibold tracking-wide text-zinc-800 uppercase sm:text-lg md:text-xl dark:text-zinc-200">
           Mazda model lineup
@@ -678,6 +1252,19 @@ function TrimPricingSection({
   const trimLine = useMemo(() => getModelTrimLine(model.id), [model.id]);
   const trims = trimLine?.trims ?? [];
   const sharedSafety = trimLine?.sharedSafetyFeatures ?? [];
+  const dimensions = useMemo(() => getModelDimensions(model.id), [model.id]);
+  const dimensionDiff = useMemo(
+    () => getModelDimensionDiff(model.id, year),
+    [model.id, year],
+  );
+  const trimColorCombinations = useMemo(
+    () => getModelTrimColorFeatures(model.id, trims),
+    [model.id, trims],
+  );
+  const trimWheelSpecs = useMemo(
+    () => getModelTrimWheelSpecs(model.id, trims),
+    [model.id, trims],
+  );
   const comparePick = Boolean(compareSlot && onPickTrimForCompare);
 
   return (
@@ -736,6 +1323,90 @@ function TrimPricingSection({
         </p>
       ) : (
         <>
+          {dimensions.length > 0 && !comparePick ? (
+            <div className="mb-4 rounded-xl border border-zinc-200 bg-white p-4 sm:mb-5 sm:p-5 md:p-6 dark:border-zinc-700 dark:bg-zinc-950">
+              <h3 className="text-xs font-semibold tracking-wide text-zinc-900 uppercase sm:text-sm dark:text-zinc-100">
+                Dimensions
+              </h3>
+              <p className="mt-2 text-sm text-pretty text-zinc-600 dark:text-zinc-400">
+                Key exterior and cargo dimensions for this model.
+              </p>
+              {dimensionDiff.length > 0 ? (
+                <ul className="mt-3 flex flex-col gap-3">
+                  {dimensionDiff.map((item, i) => (
+                    <TrimFeatureLine
+                      key={`dimensions-diff-${i}-${item.name}`}
+                      feature={item}
+                      bulletClassName="mt-2 bg-[var(--mazda-accent,#c40012)]"
+                      titleClassName="text-sm font-medium text-[var(--mazda-accent,#c40012)]"
+                    />
+                  ))}
+                </ul>
+              ) : null}
+              <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5 xl:grid-cols-3">
+                {dimensions.map((item, i) => (
+                  <TrimFeatureLine
+                    key={`dimensions-${i}-${item.name}`}
+                    feature={item}
+                    bulletClassName="mt-2 bg-zinc-400 dark:bg-zinc-500"
+                    titleClassName="text-sm font-medium text-zinc-800 dark:text-zinc-200"
+                  />
+                ))}
+              </ul>
+              {trimWheelSpecs.length > 0 ? (
+                <div className="mt-5 border-t border-zinc-100 pt-5 dark:border-zinc-800">
+                  <h4 className="text-xs font-semibold tracking-wide text-zinc-900 uppercase sm:text-sm dark:text-zinc-100">
+                    Wheel size and finish by trim
+                  </h4>
+                  <p className="mt-2 text-sm text-pretty text-zinc-600 dark:text-zinc-400">
+                    Wheel diameter and wheel finish shown for each trim level.
+                  </p>
+                  <ul className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
+                    {trimWheelSpecs.map((wheel, i) => (
+                      <li
+                        key={`trim-wheel-${i}-${wheel.name}`}
+                        className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-900/50"
+                      >
+                        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                          {wheel.name}
+                        </p>
+                        <p className="mt-2 text-xs text-zinc-700 dark:text-zinc-300">
+                          <span className="font-medium">Size:</span> {wheel.size}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-700 dark:text-zinc-300">
+                          <span className="font-medium">Finish:</span> {wheel.finish}
+                        </p>
+                        {wheel.note ? (
+                          <p className="mt-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+                            {wheel.note}
+                          </p>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {trimColorCombinations.length > 0 ? (
+                <div className="mt-5 border-t border-zinc-100 pt-5 dark:border-zinc-800">
+                  <h4 className="text-xs font-semibold tracking-wide text-zinc-900 uppercase sm:text-sm dark:text-zinc-100">
+                    Color combinations by trim
+                  </h4>
+                  <p className="mt-2 text-sm text-pretty text-zinc-600 dark:text-zinc-400">
+                    Exterior + interior combinations available per trim level.
+                  </p>
+                  <ul className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
+                    {trimColorCombinations.map((item, i) => (
+                      <TrimColorCombinationGrid
+                        key={`trim-colors-${i}-${item.name}`}
+                        item={item}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
           {sharedSafety.length > 0 && !comparePick ? (
             <div className="mb-6 rounded-xl border border-zinc-200 bg-white p-4 sm:mb-8 sm:p-5 md:p-6 dark:border-zinc-700 dark:bg-zinc-950">
               <h3 className="text-xs font-semibold tracking-wide text-zinc-900 uppercase sm:text-sm dark:text-zinc-100">
