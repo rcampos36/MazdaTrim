@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import {
+  MAZDA_USA_ORIGIN,
   getMazdaUsaImageUrl,
   getModelsForYear,
   MAZDA_MODEL_YEARS,
@@ -49,6 +50,174 @@ type TrimPerfSpec = {
   hp: string;
   trq: string;
 };
+
+const TRIM_IMAGE_PATHS: Record<string, Record<string, string>> = {
+  "mazda3-sedan": {
+    "25-s":
+      "/siteassets/vehicles/2026/mazda3-sedan/04_btv/001_trims/34-jellies/a_2.5-s/2025-mazda-3-sedan-2.5-s",
+    "25-s-select-sport":
+      "/siteassets/vehicles/2026/mazda3-sedan/04_btv/001_trims/34-jellies/b_2.5-s-select-sport/2024-m3-select-sport-platinum-quartz.png",
+    "25-s-preferred":
+      "/siteassets/vehicles/2026/mazda3-sedan/04_btv/001_trims/34-jellies/c_2.5-s-preferred/2022-m3s-fwd-2-5s-preferred-package-deep-crystal-blue.png",
+    "25-s-carbon":
+      "/siteassets/vehicles/2026/mazda3-sedan/04_btv/001_trims/34-jellies/d_carbon-edition/2025-mazda-3-sedan-2.5-s-carbon-edition",
+    "25-turbo-premium-plus":
+      "/siteassets/vehicles/2026/mazda3-sedan/04_btv/001_trims/34-jellies/e_turbo-premium-plus/2025-mazda-3-sedan-2.5-turbo-premium-plus",
+  },
+  "mazda3-hatchback": {
+    "25-s":
+      "/siteassets/vehicles/2026/mazda3-hatchback/04_btv/001_trims/34-jellies/01_2.5-s/2026-mazda-3-hatchback-2.5-s",
+    "25-s-select-sport":
+      "/siteassets/vehicles/2026/mazda3-hatchback/04_btv/001_trims/34-jellies/02_2.5-s-select-sport/2026-mazda-3-hatchback-2.5-s-select-sport",
+    "25-s-preferred":
+      "/siteassets/vehicles/2026/mazda3-hatchback/04_btv/001_trims/34-jellies/03_2.5-s-preferred/2026-mazda-3-hatchback-2.5-s-preferred",
+    "25-s-carbon":
+      "/siteassets/vehicles/2026/mazda3-hatchback/04_btv/001_trims/34-jellies/04_2.5-s-carbon-edition/2025-mazda-3-hatchback-2.5-s-carbon-edition",
+    "25-s-premium":
+      "/siteassets/vehicles/2026/mazda3-hatchback/04_btv/001_trims/34-jellies/05_2.5-s-premium/2026-mazda-3-hatchback-2.5-s-premium",
+    "25-turbo-premium-plus":
+      "/siteassets/vehicles/2026/mazda3-hatchback/04_btv/001_trims/34-jellies/06_2.5-s-turbo-premium-plus/2026-mazda-3-hatchback-2.5-turbo-premium-plus",
+  },
+  "cx-30": {
+    "25-s":
+      "/siteassets/vehicles/2026/cx-30/04_btv/001_trims/34-jellies/2.5-s/2025-mazda-cx-30-2.5-s",
+    "25-s-select-sport":
+      "/siteassets/vehicles/2025/cx-30/04_btv/001_trims/34-jellies/02_-2.5-s-select-sport/2025-Mazda-CX-30-2.5-S-Select-Sport",
+    "25-s-preferred":
+      "/siteassets/vehicles/2025/cx-30/04_btv/001_trims/34-jellies/03_-2.5-s-preferred/2025-mazda-cx-30-2.5-s-preferred",
+    "25-s-premium":
+      "/siteassets/vehicles/2025/cx-30/04_btv/001_trims/34-jellies/05_-2.5-s-premium/carryover/2025-mazda-cx-30-2.5-s-premium",
+    "25-s-aire-edition":
+      "/siteassets/vehicles/2026/cx-30/04_btv/001_trims/34-jellies/2.5-s-aire-edition/2026-cx30-2-5-s-aire-aero-gray.png",
+    "25-carbon-edition":
+      "/siteassets/vehicles/2026/cx-30/04_btv/001_trims/34-jellies/2.5-s-carbon-edition/2026-cx30-2-5-s-carbon-edition-polymetal-gray.png",
+    "25-turbo-aire-edition":
+      "/siteassets/vehicles/2026/cx-30/04_btv/001_trims/34-jellies/2.5-s-turbo-aire-edition/2026-cx30-2-5-s-turbo-aire-aero-gray.png",
+    "25-turbo-premium-plus":
+      "/siteassets/vehicles/2025/cx-30/04_btv/001_trims/34-jellies/08_-2.5-turbo-premium-plus/2025-mazda-cx-30-2.5-turbo-premium-plus",
+  },
+  "cx-50": {
+    "25-s-select":
+      "/siteassets/vehicles/2026/cx-50/04_btv/001_trims/34-jellies/2026-cx50-2-5-s-select-ingotblue.png",
+    "25-s-preferred":
+      "/siteassets/vehicles/2026/cx-50/04_btv/001_trims/34-jellies/2026-cx50-2-5-s-preferred-machinegray.png",
+    "25-s-meridian":
+      "/siteassets/vehicles/2026/cx-50/04_btv/001_trims/34-jellies/meridian/2026-cx50-2-5-meridian-zirconsand.png",
+    "25-s-premium":
+      "/siteassets/vehicles/2026/cx-50/04_btv/001_trims/34-jellies/2026-cx50-2-5-s-premium-jetblack.png",
+    "25-turbo":
+      "/siteassets/vehicles/2026/cx-50/04_btv/001_trims/34-jellies/turbo/2026-cx50-2-5-turbo-soulred.png",
+    "25-turbo-meridian":
+      "/siteassets/vehicles/2026/cx-50/04_btv/001_trims/34-jellies/turbo-meridian/2026-cx50-2-5-turbo-meridian-polymetal-gray.png",
+    "25-turbo-premium-plus":
+      "/siteassets/vehicles/2026/cx-50/04_btv/001_trims/34-jellies/turbo-premium-plus/2026-cx50-2-5-turbo-premium-plues-cypress.png",
+  },
+  "cx-5": {
+    "25-s":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s/2026-cx5-2-5s-jetblack.png",
+    "25-s-select":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-select/2026-Mazda-CX-5-2.5-S-Select.png",
+    "25-s-preferred":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-preferred/2026-Mazda-CX-5-2.5-S-Preferred.png",
+    "25-s-premium":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-premium/2026-cx5-2-5-premium-aerogray.png",
+    "25-s-premium-plus":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-premium-plus/2026-cx5-2-5-premium-plus-soul-red.png",
+  },
+  "cx-70": {
+    "33-turbo-preferred":
+      "/siteassets/vehicles/2026/cx-70/04_btv/001_trims/34-jellies/turbo-preferred/mazda-cx-70-3.3-turbo--preferred",
+    "33-turbo-premium":
+      "/siteassets/vehicles/2026/cx-70/04_btv/001_trims/34-jellies/turbo-premium/mazda-cx-70-3.3-turbo-premium.png",
+    "33-turbo-premium-plus":
+      "/siteassets/vehicles/2026/cx-70/04_btv/001_trims/34-jellies/turbo-premium-plus/mazda-cx-70-3.3-turbo-premium-plus.png",
+    "33-turbo-s-premium":
+      "/siteassets/vehicles/2026/cx-70/04_btv/001_trims/34-jellies/turbo-s-premium/mazda-cx-70-3.3-turbo-s-premium.png",
+    "33-turbo-s-premium-plus":
+      "/siteassets/vehicles/2026/cx-70/04_btv/001_trims/34-jellies/turbo-s-premium-plus/mazda-cx-70-3.3-turbo-s-premium-plus.png",
+    "phev-sc":
+      "/siteassets/vehicles/2026/cx-70-phev/04_btv/001_trims/34-jellies/phev-sc-knvbnaa/2026-mazda-cx-70-phev-sc-polymetalgray",
+    "phev-sc-plus":
+      "/siteassets/vehicles/2026/cx-70-phev/04_btv/001_trims/34-jellies/phev-sc-plus-knvbnab/2026-mazda-cx-70-phev-sc-plus-rhodiumwhite",
+  },
+  "cx-90": {
+    "33-turbo-select":
+      "/siteassets/vehicles/2026/cx-90/04_btv/001_trims/34-jellies/3.3-turbo-select/2025-cx90-3.3-turbo-select-jetblack.png",
+    "33-turbo-preferred":
+      "/siteassets/vehicles/2025/cx-90--cx-90-phev/06_btv/cx-90-inline/001_trims/34-jellies/3.3-turbo-preferred/2025-mazda-cx-90-3.3-turbo-preferred",
+    "33-turbo-premium-sport":
+      "/siteassets/vehicles/2026/cx-90/04_btv/001_trims/34-jellies/3.3-turbo-premium-sport/2026-cx90-inline-6-turbo-premium-sport-machine-gray.png",
+    "33-turbo-premium-plus":
+      "/siteassets/vehicles/2026/cx-90/04_btv/001_trims/34-jellies/3.3-turbo-premium-plus/2026-cx90-inline-6-premium-plus-artisan-red.png",
+    "33-turbo-s-premium-sport":
+      "/siteassets/vehicles/2026/cx-90/04_btv/001_trims/34-jellies/3.3-turbo-s-premium-sport/2026-cx90-inline-6-turbo-s-premium-sport-polymetal-gray.png",
+    "33-turbo-s-premium-plus":
+      "/siteassets/vehicles/2025/cx-90--cx-90-phev/06_btv/cx-90-inline/001_trims/34-jellies/3.3-turbo-s-premium-plus/2025-mazda-cx-90-3.3-turbo-s-premium-plus",
+    "phev-preferred":
+      "/siteassets/vehicles/2026/cx-90-phev/04_btv/004_exterior/ext.-360s/2026-phev-premium-sport/41w/e360-my26-cx90-phev-premium-sport-jetblack-000.jpg",
+    "phev-premium-sport":
+      "/siteassets/vehicles/2025/cx-90--cx-90-phev/06_btv/cx-90-phev/001_trims/34-jellies/phev-premium-sport/2025-mazda-cx-90-phev-premium-sport",
+    "phev-premium-plus":
+      "/siteassets/vehicles/2025/cx-90--cx-90-phev/06_btv/cx-90-phev/001_trims/34-jellies/phev-premium-plus/2025-mazda-cx-90-phev-premium-plus",
+  },
+  "mx-5-miata": {
+    sport:
+      "/siteassets/vehicles/2026/mx-5-st/04_btv/001_trims/34-jellies/sport/2026-mazda-mx-5-miata-sport.png",
+    club: "/siteassets/vehicles/2026/mx-5-st/04_btv/001_trims/34-jellies/club/2026-mazda-mx-5-miata-club.png",
+    "grand-touring":
+      "/siteassets/vehicles/2026/mx-5-st/04_btv/001_trims/34-jellies/grand-touring/2026-mazda-mx-5-miata-grand-touring.png",
+    "grand-touring-at":
+      "/siteassets/vehicles/2026/mx-5-st/04_btv/004_exterior/ext.-360s/grand-touring/46g-machine-gray/e360-my26-mx-5-st-gt-machinegray-000.jpg",
+  },
+  "mx-5-miata-rf": {
+    club: "/siteassets/vehicles/2026/mx-5-rf/04_btv/001_trims/34-jellies/club/2026-mx5-rf-club-aerogray.png",
+    "grand-touring":
+      "/siteassets/vehicles/2026/mx-5-rf/04_btv/001_trims/34-jellies/grand-touring/2026-mx5-rf-gt-soulred.png",
+    "grand-touring-at":
+      "/siteassets/vehicles/2026/mx-5-rf/04_btv/004_exterior/ext.-360s/grand-touring/46g-machine-gray/e360-2026-mx5-rf-gt-machinegray-000.jpg",
+  },
+  "cx-50-hybrid": {
+    "hybrid-preferred":
+      "/siteassets/vehicles/2025/cx-50-hybrid/04_btv/001_trims/34-jellies/hybrid-preferred/2025-mazda-cx-50-hybrid-preferred",
+    "hybrid-premium":
+      "/siteassets/vehicles/2026/cx-50-hybrid/04_btv/004_exterior/ext.-360s/hybrid-premium/machine-gray-46g/e360-my25-cx50-hybrid-premium-machinegray-000.jpg",
+    "hybrid-premium-plus":
+      "/siteassets/vehicles/2025/cx-50-hybrid/04_btv/001_trims/34-jellies/hybrid-premium-plus/2025-mazda-cx-50-hybrid-premium-plus",
+  },
+};
+
+const MODEL_SINGLE_IMAGE_FALLBACK_PATHS: Record<string, string> = {
+  "mazda3-sedan":
+    "/siteassets/vehicles/2026/mazda3-sedan/04_btv/001_trims/34-jellies/b_2.5-s-select-sport/2024-m3-select-sport-platinum-quartz.png",
+  "mazda3-hatchback":
+    "/siteassets/vehicles/2026/mazda3-hatchback/04_btv/004_exterior/ext.-360s/01_2.5-s/41w-2/e360-my26-m3-hatchback-2-5-s-jet-black-000.jpg",
+  "cx-30":
+    "/siteassets/vehicles/2026/cx-30/04_btv/001_trims/34-jellies/2.5-s-carbon-edition/2026-cx30-2-5-s-carbon-edition-polymetal-gray.png",
+  "cx-50":
+    "/siteassets/vehicles/2026/cx-50/04_btv/001_trims/34-jellies/2026-cx50-2-5-s-preferred-machinegray.png",
+  "cx-5":
+    "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s/2026-cx5-2-5s-jetblack.png",
+  "cx-70":
+    "/siteassets/vehicles/2026/cx-70/04_btv/001_trims/34-jellies/turbo-premium/mazda-cx-70-3.3-turbo-premium.png",
+  "cx-90":
+    "/siteassets/vehicles/2026/cx-90/04_btv/001_trims/34-jellies/3.3-turbo-select/2025-cx90-3.3-turbo-select-jetblack.png",
+  "mx-5-miata":
+    "/siteassets/vehicles/2026/mx-5-st/04_btv/001_trims/34-jellies/sport/2026-mazda-mx-5-miata-sport.png",
+  "mx-5-miata-rf":
+    "/siteassets/vehicles/2026/mx-5-rf/04_btv/001_trims/34-jellies/club/2026-mx5-rf-club-aerogray.png",
+  "cx-50-hybrid":
+    "/siteassets/vehicles/2026/cx-50-hybrid/04_btv/001_trims/34-jellies/2026-cx50-hybrid-premium-ingotblue.png",
+};
+
+function getTrimImageUrl(modelId: string, trimId: string): string {
+  const path = TRIM_IMAGE_PATHS[modelId]?.[trimId];
+  const fallbackPath = MODEL_SINGLE_IMAGE_FALLBACK_PATHS[modelId];
+  if (!path && !fallbackPath) return getMazdaUsaImageUrl(modelId);
+  const resolvedPath = path ?? fallbackPath;
+  if (!resolvedPath) return getMazdaUsaImageUrl(modelId);
+  if (resolvedPath.startsWith("http")) return resolvedPath;
+  return `${MAZDA_USA_ORIGIN}${resolvedPath}?w=720`;
+}
 
 const MODEL_DIMENSIONS: Record<string, TrimFeatureItem[]> = {
   "mazda3-sedan": [
@@ -451,23 +620,7 @@ function getColorCombinationsForTrim(
 
   const palette = MODEL_COLOR_PALETTES[modelId];
   if (!palette) return [];
-
-  const tierSeed = `${trimId} ${trimName}`.toLowerCase();
-  if (
-    tierSeed.includes("premium plus") ||
-    tierSeed.includes("turbo s premium plus") ||
-    tierSeed.includes("grand touring")
-  ) {
-    return [...palette.premium, ...palette.topTrim];
-  }
-  if (
-    tierSeed.includes("premium") ||
-    tierSeed.includes("carbon") ||
-    tierSeed.includes("preferred")
-  ) {
-    return [...palette.core, ...palette.premium];
-  }
-  return [...palette.core];
+  return [...palette.core, ...palette.premium, ...palette.topTrim];
 }
 
 type ColorCombination = {
@@ -1257,10 +1410,6 @@ function TrimPricingSection({
     () => getModelDimensionDiff(model.id, year),
     [model.id, year],
   );
-  const trimColorCombinations = useMemo(
-    () => getModelTrimColorFeatures(model.id, trims),
-    [model.id, trims],
-  );
   const trimWheelSpecs = useMemo(
     () => getModelTrimWheelSpecs(model.id, trims),
     [model.id, trims],
@@ -1386,24 +1535,6 @@ function TrimPricingSection({
                   </ul>
                 </div>
               ) : null}
-              {trimColorCombinations.length > 0 ? (
-                <div className="mt-5 border-t border-zinc-100 pt-5 dark:border-zinc-800">
-                  <h4 className="text-xs font-semibold tracking-wide text-zinc-900 uppercase sm:text-sm dark:text-zinc-100">
-                    Color combinations by trim
-                  </h4>
-                  <p className="mt-2 text-sm text-pretty text-zinc-600 dark:text-zinc-400">
-                    Exterior + interior combinations available per trim level.
-                  </p>
-                  <ul className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
-                    {trimColorCombinations.map((item, i) => (
-                      <TrimColorCombinationGrid
-                        key={`trim-colors-${i}-${item.name}`}
-                        item={item}
-                      />
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
             </div>
           ) : null}
 
@@ -1476,9 +1607,30 @@ function TrimPricingCard({
   onSelectForCompare?: () => void;
 }) {
   const perfSpec = getTrimPerfSpec(modelId, trim.id);
+  const [trimImageFailed, setTrimImageFailed] = useState(false);
+  const trimImageSrc = useMemo(
+    () => getTrimImageUrl(modelId, trim.id),
+    [modelId, trim.id],
+  );
+  const displayImageSrc = trimImageSrc;
 
   return (
     <article className="flex h-full min-w-0 flex-col rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 md:p-6 dark:border-zinc-700 dark:bg-zinc-950">
+      <div className="mb-4 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/60">
+        <Image
+          src={displayImageSrc}
+          alt={`${trim.name} exterior`}
+          width={720}
+          height={360}
+          className="h-auto w-full object-contain"
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 420px"
+          onError={() => {
+            if (!trimImageFailed) setTrimImageFailed(true);
+          }}
+          unoptimized
+        />
+      </div>
+
       {comparePick && onSelectForCompare ? (
         <button
           type="button"
