@@ -24,6 +24,7 @@ import {
   type ModelTrim,
   type TrimFeatureItem,
 } from "@/data/mazda-trims";
+import { getTrimWheelSpec } from "@/data/mazda-wheel-specs";
 import { CertifiedPreOwnedModal } from "@/components/CertifiedPreOwnedModal";
 import { ModelSilhouette } from "@/components/ModelSilhouette";
 
@@ -762,81 +763,13 @@ function getModelTrimColorFeatures(
   });
 }
 
-function getWheelSpecForTrim(
-  modelId: string,
-  trimId: string,
-  trimName: string,
-): Omit<TrimWheelSpecFeature, "name"> {
-  const key = `${trimId} ${trimName}`.toLowerCase();
-
-  if (modelId === "mazda3-sedan" || modelId === "mazda3-hatchback") {
-    if (key.includes("turbo")) {
-      return { size: '18"', finish: "Black Metallic alloy" };
-    }
-    if (key.includes("preferred") || key.includes("carbon") || key.includes("premium")) {
-      return { size: '18"', finish: "Alloy (Black / Dark finish by package)" };
-    }
-    return { size: '16"', finish: "Silver Metallic alloy" };
-  }
-
-  if (modelId === "cx-30") {
-    if (key.includes("s ") && !key.includes("select")) {
-      return { size: '16"', finish: "Gray Metallic alloy" };
-    }
-    return { size: '18"', finish: "Black Metallic alloy" };
-  }
-
-  if (modelId === "cx-50") {
-    if (key.includes("meridian")) {
-      return { size: '18"', finish: "Black Metallic alloy (all-terrain setup)" };
-    }
-    if (key.includes("turbo") || key.includes("premium")) {
-      return { size: '20"', finish: "Black Metallic alloy" };
-    }
-    return { size: '17"', finish: "Black Metallic alloy" };
-  }
-
-  if (modelId === "cx-50-hybrid") {
-    if (key.includes("premium plus")) {
-      return { size: '19"', finish: "Black Metallic alloy" };
-    }
-    return { size: '17"', finish: "Black Metallic alloy" };
-  }
-
-  if (modelId === "cx-5") {
-    if (key.includes("premium") || key.includes("preferred")) {
-      return { size: '19"', finish: "Black Metallic alloy" };
-    }
-    return { size: '17"', finish: "Gray Metallic alloy" };
-  }
-
-  if (modelId === "cx-70" || modelId === "cx-90") {
-    if (key.includes("premium plus") || key.includes("turbo s premium")) {
-      return { size: '21"', finish: "Machined with Black Metallic accents" };
-    }
-    return { size: '19"', finish: "Silver Metallic alloy" };
-  }
-
-  if (modelId === "mx-5-miata" || modelId === "mx-5-miata-rf") {
-    if (key.includes("sport")) {
-      return { size: '16"', finish: "Dark Silver Metallic alloy" };
-    }
-    return { size: '17"', finish: "Gunmetal alloy" };
-  }
-
-  return {
-    size: "N/A",
-    finish: "Verify on Mazda USA build-and-price",
-    note: "Wheel specification varies by package and market.",
-  };
-}
-
 function getModelTrimWheelSpecs(
   modelId: string,
   trims: ModelTrim[],
+  year: ModelYear,
 ): TrimWheelSpecFeature[] {
   return trims.map((trim) => {
-    const wheel = getWheelSpecForTrim(modelId, trim.id, trim.name);
+    const wheel = getTrimWheelSpec(modelId, trim.id, year);
     return {
       name: trim.name,
       size: wheel.size,
@@ -1516,8 +1449,8 @@ function TrimPricingSection({
     [model.id, year],
   );
   const trimWheelSpecs = useMemo(
-    () => getModelTrimWheelSpecs(model.id, trims),
-    [model.id, trims],
+    () => getModelTrimWheelSpecs(model.id, trims, year),
+    [model.id, trims, year],
   );
   const comparePick = Boolean(compareSlot && onPickTrimForCompare);
 
