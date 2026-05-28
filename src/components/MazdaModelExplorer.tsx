@@ -13,6 +13,7 @@ import {
 import {
   MAZDA_USA_ORIGIN,
   getMazdaUsaImageUrl,
+  getModelCardImageClassName,
   getModelsForYear,
   MAZDA_MODEL_YEARS,
   type MazdaModel,
@@ -23,6 +24,7 @@ import {
   type ModelTrim,
   type TrimFeatureItem,
 } from "@/data/mazda-trims";
+import { CertifiedPreOwnedModal } from "@/components/CertifiedPreOwnedModal";
 import { ModelSilhouette } from "@/components/ModelSilhouette";
 
 type ComparePick = {
@@ -242,9 +244,9 @@ function getTrimImageUrl(
       ? TRIM_IMAGE_PATHS_CX5[year][trimId]
       : TRIM_IMAGE_PATHS[modelId]?.[trimId];
   const fallbackPath = MODEL_SINGLE_IMAGE_FALLBACK_PATHS[modelId];
-  if (!path && !fallbackPath) return getMazdaUsaImageUrl(modelId);
+  if (!path && !fallbackPath) return getMazdaUsaImageUrl(modelId, year);
   const resolvedPath = path ?? fallbackPath;
-  if (!resolvedPath) return getMazdaUsaImageUrl(modelId);
+  if (!resolvedPath) return getMazdaUsaImageUrl(modelId, year);
   if (resolvedPath.startsWith("http")) return resolvedPath;
   return `${MAZDA_USA_ORIGIN}${resolvedPath}?w=720`;
 }
@@ -928,6 +930,7 @@ export function MazdaModelExplorer() {
     a: ComparePick;
     b: ComparePick;
   } | null>(null);
+  const [cpoOpen, setCpoOpen] = useState(false);
 
   const models = useMemo(() => getModelsForYear(year), [year]);
 
@@ -1020,6 +1023,16 @@ export function MazdaModelExplorer() {
         <div className="mt-5 flex flex-col items-center gap-3 sm:mt-6">
           <button
             type="button"
+            onClick={() => {
+              setCpoOpen(true);
+              if (compareMode) cancelCompareMode();
+            }}
+            className="inline-flex min-h-11 w-full max-w-md items-center justify-center rounded-full border border-[var(--mazda-accent,#c40012)]/40 bg-white px-5 py-2.5 text-sm font-medium text-[var(--mazda-accent,#c40012)] transition-colors hover:bg-[var(--mazda-accent,#c40012)]/5 sm:min-h-0 sm:w-auto sm:py-2 dark:border-[var(--mazda-accent,#c40012)]/50 dark:bg-zinc-950 dark:hover:bg-[var(--mazda-accent,#c40012)]/10"
+          >
+            Certified Pre-Owned benefits
+          </button>
+          <button
+            type="button"
             onClick={() =>
               compareMode ? cancelCompareMode() : startCompareMode()
             }
@@ -1110,6 +1123,10 @@ export function MazdaModelExplorer() {
           pickB={comparePair.b}
           onClose={closeComparePairModal}
         />
+      ) : null}
+
+      {cpoOpen ? (
+        <CertifiedPreOwnedModal onClose={() => setCpoOpen(false)} />
       ) : null}
     </div>
   );
@@ -1827,7 +1844,18 @@ function ModelCard({
   onSelect: () => void;
 }) {
   const [imageFailed, setImageFailed] = useState(false);
-  const imageSrc = useMemo(() => getMazdaUsaImageUrl(model.id), [model.id]);
+  const imageSrc = useMemo(
+    () => getMazdaUsaImageUrl(model.id, year),
+    [model.id, year],
+  );
+  const imageClassName = useMemo(
+    () => getModelCardImageClassName(model.id, year),
+    [model.id, year],
+  );
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [imageSrc]);
 
   return (
     <button
@@ -1857,7 +1885,7 @@ function ModelCard({
             alt={`${model.name} — image from Mazda USA`}
             fill
             sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1280px) 33vw, 384px"
-            className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.02]"
+            className={`${imageClassName} transition-transform duration-300 group-hover:scale-[1.02]`}
             onError={() => setImageFailed(true)}
           />
         )}
