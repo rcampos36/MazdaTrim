@@ -33,9 +33,10 @@ type ComparePick = {
 function trimLabelForPick(
   pick: ComparePick,
   models: MazdaModel[],
+  year: ModelYear,
 ): string | null {
   const model = models.find((m) => m.id === pick.modelId);
-  const line = getModelTrimLine(pick.modelId);
+  const line = getModelTrimLine(pick.modelId, year);
   const trim = line?.trims.find((t) => t.id === pick.trimId);
   if (!model || !trim) return null;
   return `${model.name} · ${trim.name}`;
@@ -111,18 +112,6 @@ const TRIM_IMAGE_PATHS: Record<string, Record<string, string>> = {
       "/siteassets/vehicles/2026/cx-50/04_btv/001_trims/34-jellies/turbo-meridian/2026-cx50-2-5-turbo-meridian-polymetal-gray.png",
     "25-turbo-premium-plus":
       "/siteassets/vehicles/2026/cx-50/04_btv/001_trims/34-jellies/turbo-premium-plus/2026-cx50-2-5-turbo-premium-plues-cypress.png",
-  },
-  "cx-5": {
-    "25-s":
-      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s/2026-cx5-2-5s-jetblack.png",
-    "25-s-select":
-      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-select/2026-Mazda-CX-5-2.5-S-Select.png",
-    "25-s-preferred":
-      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-preferred/2026-Mazda-CX-5-2.5-S-Preferred.png",
-    "25-s-premium":
-      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-premium/2026-cx5-2-5-premium-aerogray.png",
-    "25-s-premium-plus":
-      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-premium-plus/2026-cx5-2-5-premium-plus-soul-red.png",
   },
   "cx-70": {
     "33-turbo-preferred":
@@ -209,8 +198,49 @@ const MODEL_SINGLE_IMAGE_FALLBACK_PATHS: Record<string, string> = {
     "/siteassets/vehicles/2026/cx-50-hybrid/04_btv/001_trims/34-jellies/2026-cx50-hybrid-premium-ingotblue.png",
 };
 
-function getTrimImageUrl(modelId: string, trimId: string): string {
-  const path = TRIM_IMAGE_PATHS[modelId]?.[trimId];
+/** 2025 CX-5 trim jellies live under `05_btv` (extensionless Sitecore URLs, like CX-50 Hybrid). */
+const TRIM_IMAGE_PATHS_CX5: Record<ModelYear, Record<string, string>> = {
+  2025: {
+    "25-s":
+      "/siteassets/vehicles/2025/cx-5/05_btv/001_trims/34-jellies/2.5-s/2025-Mazda-CX-5-2.5-S",
+    "25-s-select":
+      "/siteassets/vehicles/2025/cx-5/05_btv/001_trims/34-jellies/2.5-s-select/2025-Mazda-CX-5-2.5-S-Select",
+    "25-s-preferred":
+      "/siteassets/vehicles/2025/cx-5/05_btv/001_trims/34-jellies/2.5-s-preferred/2025-Mazda-CX-5-2.5-S-Preferred",
+    "25-s-carbon-edition":
+      "/siteassets/vehicles/2025/cx-5/05_btv/001_trims/34-jellies/2.5-s-carbon-edition/2025-Mazda-CX-5-2.5-S-Carbon-edition",
+    "25-s-premium-plus":
+      "/siteassets/vehicles/2025/cx-5/05_btv/001_trims/34-jellies/2.5-s-premium-plus/2025-Mazda-CX-5-2.5-S-Premium-Plus",
+    "25-carbon-turbo":
+      "/siteassets/vehicles/2025/cx-5/02_gallery/2025-mazda-cx-5-crossover-suv-available-turbo-engine",
+    "25-turbo-premium":
+      "/siteassets/vehicles/2025/cx-5/02_gallery/2025-mazda-cx-5-crossover-suv-eye-catching-design",
+    "25-turbo-signature":
+      "/siteassets/vehicles/2025/cx-5/05_btv/002_exterior/ext.-360s/2.5-turbo-signature/46v/e360-my24-cx50-turbo_signature-soulred-000.jpg",
+  },
+  2026: {
+    "25-s":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s/2026-cx5-2-5s-jetblack.png",
+    "25-s-select":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-select/2026-Mazda-CX-5-2.5-S-Select.png",
+    "25-s-preferred":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-preferred/2026-Mazda-CX-5-2.5-S-Preferred.png",
+    "25-s-premium":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-premium/2026-cx5-2-5-premium-aerogray.png",
+    "25-s-premium-plus":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-premium-plus/2026-cx5-2-5-premium-plus-soul-red.png",
+  },
+};
+
+function getTrimImageUrl(
+  modelId: string,
+  trimId: string,
+  year: ModelYear = 2026,
+): string {
+  const path =
+    modelId === "cx-5"
+      ? TRIM_IMAGE_PATHS_CX5[year][trimId]
+      : TRIM_IMAGE_PATHS[modelId]?.[trimId];
   const fallbackPath = MODEL_SINGLE_IMAGE_FALLBACK_PATHS[modelId];
   if (!path && !fallbackPath) return getMazdaUsaImageUrl(modelId);
   const resolvedPath = path ?? fallbackPath;
@@ -274,20 +304,6 @@ const MODEL_DIMENSIONS: Record<string, TrimFeatureItem[]> = {
     {
       name: "Cargo capacity",
       description: "31.4 cu ft behind rear seats.",
-    },
-  ],
-  "cx-5": [
-    {
-      name: "Exterior size",
-      description: "Length 180.1 in, width 72.6 in, height 65.4 in.",
-    },
-    {
-      name: "Wheelbase",
-      description: "106.2 in.",
-    },
-    {
-      name: "Cargo capacity",
-      description: "30.8 cu ft behind rear seats.",
     },
   ],
   "cx-70": [
@@ -358,6 +374,37 @@ const MODEL_DIMENSIONS: Record<string, TrimFeatureItem[]> = {
     {
       name: "Cargo capacity",
       description: "29.2 cu ft behind rear seats.",
+    },
+  ],
+};
+
+const MODEL_DIMENSIONS_CX5: Record<ModelYear, TrimFeatureItem[]> = {
+  2025: [
+    {
+      name: "Exterior size",
+      description: "Length 180.1 in, width 72.6 in, height 65.4 in.",
+    },
+    {
+      name: "Wheelbase",
+      description: "106.2 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "30.8 cu ft behind rear seats.",
+    },
+  ],
+  2026: [
+    {
+      name: "Exterior size",
+      description: "Length 184.6 in, width 73.2 in, height 65.4 in (approx.).",
+    },
+    {
+      name: "Wheelbase",
+      description: "110.8 in.",
+    },
+    {
+      name: "Cargo capacity",
+      description: "About 32.8 cu ft behind rear seats (longer cargo floor vs 2025).",
     },
   ],
 };
@@ -559,6 +606,24 @@ const MODEL_TRIM_COLOR_AVAILABILITY: Record<string, ModelTrimColorAvailability> 
       "Polymetal Gray Metallic + Sport Tan Leather",
       "Machine Gray Metallic + Black Leather",
     ],
+    "25-s-carbon-edition": [
+      "Polymetal Gray Metallic + Black Leather (red stitching)",
+      "Polymetal Gray Metallic + Red Leather",
+    ],
+    "25-carbon-turbo": [
+      "Zircon Sand Metallic + Terracotta Leather",
+      "Rhodium White Metallic + Terracotta Leather",
+    ],
+    "25-turbo-premium": [
+      "Jet Black Mica + Black Leather",
+      "Soul Red Crystal Metallic + Black Leather",
+      "Machine Gray Metallic + Black Leather",
+    ],
+    "25-turbo-signature": [
+      "Jet Black Mica + Caturra Brown Nappa Leather",
+      "Machine Gray Metallic + Caturra Brown Nappa Leather",
+      "Soul Red Crystal Metallic + Caturra Brown Nappa Leather",
+    ],
   },
 };
 
@@ -582,6 +647,9 @@ function getTrimPerfSpec(modelId: string, trimId: string): TrimPerfSpec | null {
     return { eng: "2.5H", hp: "219", trq: "163" };
   }
   if (modelId === "cx-5") {
+    if (trimId.includes("turbo") || trimId.includes("carbon-turbo")) {
+      return { eng: "2.5T", hp: "256", trq: "320" };
+    }
     return { eng: "2.5", hp: "187", trq: "186" };
   }
   if (modelId === "cx-70" || modelId === "cx-90") {
@@ -599,7 +667,13 @@ function getTrimPerfSpec(modelId: string, trimId: string): TrimPerfSpec | null {
   return null;
 }
 
-function getModelDimensions(modelId: string): TrimFeatureItem[] {
+function getModelDimensions(
+  modelId: string,
+  year: ModelYear,
+): TrimFeatureItem[] {
+  if (modelId === "cx-5") {
+    return MODEL_DIMENSIONS_CX5[year];
+  }
   return MODEL_DIMENSIONS[modelId] ?? [];
 }
 
@@ -864,8 +938,8 @@ export function MazdaModelExplorer() {
 
   const firstPickLabel = useMemo(
     () =>
-      compareFirst ? trimLabelForPick(compareFirst, models) : null,
-    [compareFirst, models],
+      compareFirst ? trimLabelForPick(compareFirst, models, year) : null,
+    [compareFirst, models, year],
   );
 
   function onYearChange(next: ModelYear) {
@@ -1079,8 +1153,14 @@ function CompareTrimsModal({
 
   const modelA = models.find((m) => m.id === pickA.modelId);
   const modelB = models.find((m) => m.id === pickB.modelId);
-  const lineA = useMemo(() => getModelTrimLine(pickA.modelId), [pickA.modelId]);
-  const lineB = useMemo(() => getModelTrimLine(pickB.modelId), [pickB.modelId]);
+  const lineA = useMemo(
+    () => getModelTrimLine(pickA.modelId, year),
+    [pickA.modelId, year],
+  );
+  const lineB = useMemo(
+    () => getModelTrimLine(pickB.modelId, year),
+    [pickB.modelId, year],
+  );
   const trimsA = lineA?.trims ?? [];
   const trimsB = lineB?.trims ?? [];
   const trimA = lineA?.trims.find((t) => t.id === pickA.trimId);
@@ -1187,6 +1267,7 @@ function CompareTrimsModal({
                   />
                   <TrimPricingCard
                     trim={trimA}
+                    year={year}
                     previousTrimName={previousNameA}
                     modelId={modelA.id}
                   />
@@ -1208,6 +1289,7 @@ function CompareTrimsModal({
                   />
                   <TrimPricingCard
                     trim={trimB}
+                    year={year}
                     previousTrimName={previousNameB}
                     modelId={modelB.id}
                   />
@@ -1402,10 +1484,16 @@ function TrimPricingSection({
   compareSlot?: 1 | 2;
   onPickTrimForCompare?: (trimId: string) => void;
 }) {
-  const trimLine = useMemo(() => getModelTrimLine(model.id), [model.id]);
+  const trimLine = useMemo(
+    () => getModelTrimLine(model.id, year),
+    [model.id, year],
+  );
   const trims = trimLine?.trims ?? [];
   const sharedSafety = trimLine?.sharedSafetyFeatures ?? [];
-  const dimensions = useMemo(() => getModelDimensions(model.id), [model.id]);
+  const dimensions = useMemo(
+    () => getModelDimensions(model.id, year),
+    [model.id, year],
+  );
   const dimensionDiff = useMemo(
     () => getModelDimensionDiff(model.id, year),
     [model.id, year],
@@ -1569,6 +1657,7 @@ function TrimPricingSection({
               <li key={`${model.id}-${trim.id}`}>
                 <TrimPricingCard
                   trim={trim}
+                  year={year}
                   previousTrimName={
                     trim.hidePreviousTrimComparison
                       ? null
@@ -1596,12 +1685,14 @@ function TrimPricingSection({
 function TrimPricingCard({
   trim,
   modelId,
+  year,
   previousTrimName,
   comparePick,
   onSelectForCompare,
 }: {
   trim: ModelTrim;
   modelId: string;
+  year: ModelYear;
   previousTrimName: string | null;
   comparePick?: boolean;
   onSelectForCompare?: () => void;
@@ -1609,8 +1700,8 @@ function TrimPricingCard({
   const perfSpec = getTrimPerfSpec(modelId, trim.id);
   const [trimImageFailed, setTrimImageFailed] = useState(false);
   const trimImageSrc = useMemo(
-    () => getTrimImageUrl(modelId, trim.id),
-    [modelId, trim.id],
+    () => getTrimImageUrl(modelId, trim.id, year),
+    [modelId, trim.id, year],
   );
   const displayImageSrc = trimImageSrc;
 

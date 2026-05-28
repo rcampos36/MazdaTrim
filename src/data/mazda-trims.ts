@@ -1,3 +1,5 @@
+import type { ModelYear } from "./mazda-models";
+
 /**
  * Per model: **sharedSafetyFeatures** apply to every trim (shown once above the cards).
  * Each trim: **addedFeatures** and **trimSafetyAdditions** use **TrimFeatureItem** with a short
@@ -193,6 +195,53 @@ const SHARED_SAFETY_CX50_HYBRID: TrimFeatureItem[] = [
     "Engineered casing and placement to help shield the hybrid battery pack from road debris and collision intrusion.",
   ),
   ...SHARED_SAFETY_CX50_GAS.slice(8),
+];
+
+/**
+ * 2025 Mazda CX-5 (2nd gen) — standard i-Activsense® on 2.5 S baseline.
+ * @see https://news.mazdausa.com/2024-07-16-2025-Mazda-CX-5-Pricing-and-Packaging
+ */
+const SHARED_SAFETY_CX5_2025: TrimFeatureItem[] = [
+  feat(
+    "Blind Spot Monitoring",
+    "Indicates when a vehicle is in an adjacent lane blind spot.",
+  ),
+  feat(
+    "Advanced Smart City Brake Support with pedestrian detection",
+    "Forward braking assist at lower speeds with pedestrian detection (Mazda USA).",
+  ),
+  feat(
+    "Lane Keep Assist",
+    "Can apply gentle steering to help keep the vehicle centered in its lane.",
+  ),
+  feat(
+    "Mazda Radar Cruise Control with Stop & Go",
+    "Adaptive cruise that can brake to a stop and resume in traffic.",
+  ),
+  feat(
+    "Rear Cross Traffic Alert",
+    "Warns of crossing traffic behind you when reversing.",
+  ),
+  feat(
+    "Rear Seat Alert",
+    "Reminds you to check the rear seat after a rear door was used.",
+  ),
+  feat(
+    "Smart Brake Support",
+    "Forward collision warning and automatic emergency braking when a frontal risk is detected.",
+  ),
+  feat(
+    "Eight airbags",
+    "Frontal, side, and curtain supplemental restraints across the cabin.",
+  ),
+  feat(
+    "Dynamic Stability Control and Traction Control System",
+    "Helps maintain control by adjusting throttle and braking at individual wheels.",
+  ),
+  feat(
+    "Tire Pressure Monitoring System (TPMS)",
+    "Warns when a tire is significantly under-inflated.",
+  ),
 ];
 
 /**
@@ -501,6 +550,434 @@ const SAF_SECURITY_SYSTEM = feat(
   "Security system",
   "Theft-deterrent alarm and related security functions (per Mazda USA packaging).",
 );
+
+const CX5_TRIM_LINE_2026: ModelTrimLine = {
+    sharedSafetyFeatures: SHARED_SAFETY_CX5,
+    trims: [
+      {
+        id: "25-s",
+        name: "2.5 S",
+        startingMsrp: "$29,990",
+        trimSafetyAdditions: [],
+        addedFeatures: [
+          feat(
+            "SKYACTIV-G 2.5L (187 hp / 186 lb-ft)",
+            "Naturally aspirated four-cylinder with six-speed automatic and standard i-Activ AWD®.",
+          ),
+          feat(
+            "Mi-Drive (Normal, Sport, Off-Road)",
+            "Drive modes that tune transmission and AWD behavior for the surface and your mood.",
+          ),
+          feat(
+            "G-Vectoring Control Plus with electronic brake limited-slip differential",
+            "Smoother cornering behavior and improved traction when one wheel has less grip.",
+          ),
+          feat(
+            "Updated shocks, wheels, and tires",
+            "Third-gen CX-5 ride and handling package with revised dampers and tire setup (Mazda USA).",
+          ),
+          feat(
+            '17" wheels',
+            "Standard 17-inch wheels on the entry 2.5 S.",
+          ),
+          feat(
+            "Mazda Connect with Google built-in and Gemini AI assistant",
+            "Large touchscreen Mazda Connect with Google built-in, navigation, and voice assistant (Mazda Connected Services trial applies).",
+          ),
+          feat(
+            '12.9" touchscreen with wired Apple CarPlay® and Android Auto™',
+            "Widescreen center display with wired phone projection plus Google built-in features.",
+          ),
+          feat(
+            "Eight-speaker audio with HD Radio™",
+            "Eight-speaker sound system with HD Radio™ capability.",
+          ),
+          feat(
+            "Dual USB-C ports and dual 12V outlets",
+            "Two USB-C charging ports and two 12-volt power outlets.",
+          ),
+          feat(
+            "Eight-way manual driver’s seat and six-way manual passenger seat",
+            "Manual seat adjustment for driver and front passenger.",
+          ),
+          feat(
+            "Rear bench with center armrest, recline, and 40/20/40 split with pass-through",
+            "Flexible second row for passengers and long cargo.",
+          ),
+          feat(
+            "Dual-zone automatic climate control",
+            "Separate left and right front temperature settings.",
+          ),
+          feat(
+            "Leather-wrapped steering wheel and shift knob",
+            "Leather wrap on primary controls.",
+          ),
+          feat(
+            '10.25" digital driver display',
+            "Large digital instrumentation including tachometer-style readout.",
+          ),
+          feat(
+            "Overhead console with sunglass holder",
+            "Storage in the overhead console for sunglasses.",
+          ),
+        ],
+      },
+      {
+        id: "25-s-select",
+        name: "2.5 S Select",
+        startingMsrp: "$31,990",
+        trimSafetyAdditions: [],
+        addedFeatures: [
+          feat(
+            "Tinted privacy glass",
+            "Darkened rear glass for sun glare and modest cargo concealment.",
+          ),
+          feat(
+            "Auto-folding heated door mirrors",
+            "Side mirrors fold and heat for parking and cold weather.",
+          ),
+          feat(
+            "Leatherette seats with cloth center insert",
+            "Leather-like bolsters with breathable cloth centers.",
+          ),
+          feat(
+            "Frameless auto-dimming rearview mirror",
+            "Slim-frame mirror that dims for glare from headlights behind you.",
+          ),
+          feat(
+            "Sun visors with illuminated vanity mirrors",
+            "Lit mirrors in both front visors.",
+          ),
+          feat(
+            "Rear-seat air vents",
+            "Climate airflow to the second row.",
+          ),
+          feat(
+            "Wireless phone charging",
+            "Qi-compatible charging pad for supported phones.",
+          ),
+          feat(
+            "Keyless entry",
+            "Keyless access to lock and unlock the vehicle.",
+          ),
+          feat(
+            "Wireless Apple CarPlay® and Android Auto™",
+            "Cable-free phone projection on supported devices.",
+          ),
+        ],
+      },
+      {
+        id: "25-s-preferred",
+        name: "2.5 S Preferred",
+        startingMsrp: "$34,250",
+        trimSafetyAdditions: [],
+        addedFeatures: [
+          feat(
+            '19" alloy wheels',
+            "Larger 19-inch alloy wheels versus 17-inch on lower trims.",
+          ),
+          feat(
+            "Roof rails",
+            "Factory rails for approved roof accessories.",
+          ),
+          feat(
+            "Power liftgate",
+            "Powered rear hatch for easier cargo loading.",
+          ),
+          feat(
+            "Memory settings for door mirrors",
+            "Mirrors recall stored positions for different drivers.",
+          ),
+          feat(
+            "Windshield wiper de-icer",
+            "Heated area at the wiper park position for ice and snow.",
+          ),
+          feat(
+            "Full-color Active Driving Display (windshield-projected)",
+            "Head-up style color readouts projected onto the windshield.",
+          ),
+          feat(
+            "Heated front seats and heated steering wheel",
+            "Warmth for front occupants and the steering wheel.",
+          ),
+          feat(
+            "10-way power driver’s seat with memory",
+            "Power driver seat adjustments including memory presets.",
+          ),
+          feat(
+            "HomeLink® integrated in rearview mirror",
+            "Programmable buttons for compatible garage doors and gates.",
+          ),
+        ],
+        popular: true,
+      },
+      {
+        id: "25-s-premium",
+        name: "2.5 S Premium",
+        startingMsrp: "$36,900",
+        trimSafetyAdditions: [],
+        addedFeatures: [
+          feat(
+            "Black contrasting exterior trim",
+            "Black metallic finish on bumper trim, wheel-arch moldings, and side garnishes.",
+          ),
+          feat(
+            '19" Black Metallic alloy wheels',
+            "Black metallic 19-inch wheels.",
+          ),
+          feat(
+            "Signature Illumination LED headlights and taillights",
+            "Mazda signature LED daytime running light treatment front and rear.",
+          ),
+          feat(
+            "Large panoramic sunroof",
+            "Wide glass sunroof for cabin brightness and ventilation.",
+          ),
+          feat(
+            "Leather seating with ventilated front seats",
+            "Leather upholstery with fan-cooled front seats.",
+          ),
+          feat(
+            "Six-way power front passenger seat",
+            "Power adjustments for the front passenger.",
+          ),
+          feat(
+            "Heated rear seats",
+            "Second-row seat heat for rear passengers.",
+          ),
+          feat(
+            "Color-selectable interior ambient lighting",
+            "Ambient lighting adjustable via the infotainment system.",
+          ),
+          feat(
+            "Bose® 12-speaker premium audio with SiriusXM®",
+            "Bose® twelve-speaker system with satellite radio capability.",
+          ),
+          feat(
+            "Two additional rear USB-C ports",
+            "Extra USB-C charging for second-row passengers.",
+          ),
+        ],
+      },
+      {
+        id: "25-s-premium-plus",
+        name: "2.5 S Premium Plus",
+        startingMsrp: "$38,990",
+        trimSafetyAdditions: [
+          SAF_AFS,
+          SAF_FCTA_FCTB,
+          SAF_DRIVER_MONITORING,
+          SAF_360_CX5_EXPANDED,
+          SAF_CTS_LANE_CHANGE_ASSIST,
+        ],
+        addedFeatures: [
+          feat(
+            "Hands-free power rear liftgate",
+            "Open the liftgate with a hands-free gesture where equipped.",
+          ),
+          feat(
+            '15.6" center touchscreen (replaces 12.9")',
+            "Largest infotainment screen in the lineup for maps and controls.",
+          ),
+          feat(
+            "Steering-wheel paddle shifters",
+            "Manual gear control without removing hands far from the wheel.",
+          ),
+          feat(
+            "Driver Personalization System",
+            "Automatically adjusts mirrors and seating toward optimal positions for visibility and control (Mazda USA).",
+          ),
+        ],
+      },
+    ],
+};
+
+const CX5_TRIM_LINE_2025: ModelTrimLine = {
+  sharedSafetyFeatures: SHARED_SAFETY_CX5_2025,
+  trims: [
+    {
+      id: "25-s",
+      name: "2.5 S",
+      startingMsrp: "$29,050",
+      trimSafetyAdditions: [],
+      addedFeatures: [
+        feat(
+          "Skyactiv-G 2.5L with cylinder deactivation — 187 hp / 186 lb-ft; EPA-estimated 26 city / 30 highway / 28 combined",
+          "Naturally aspirated four-cylinder with i-stop; six-speed automatic with manual and sport modes; standard i-Activ AWD®.",
+        ),
+        feat(
+          "G-Vectoring Control Plus",
+          "Monitors weight transfer and shifts power for responsive acceleration (Mazda USA).",
+        ),
+        feat(
+          "10.25\" Mazda Connect with multi-function commander knob; wired Apple CarPlay® and Android Auto™ (touch capable); four-speaker audio with HD Radio™",
+          "2025 infotainment with rotary commander control — not the 2026 Google built-in touchscreen-only layout.",
+        ),
+        feat(
+          "Mazda Connected Services trial; cloth seats; push-button start; leather-wrapped steering wheel and shift knob; dual front USB-C; reclining rear seats",
+          "Connected services trial, cloth interior, and front USB-C (Mazda USA).",
+        ),
+        feat(
+          "Automatic on/off LED headlights with High Beam Control; rear roof spoiler; 17\" gray metallic alloy wheels; rain-sensing wipers",
+          "Exterior lighting and wheels on entry 2.5 S.",
+        ),
+      ],
+    },
+    {
+      id: "25-s-select",
+      name: "2.5 S Select",
+      startingMsrp: "$30,380",
+      trimSafetyAdditions: [],
+      addedFeatures: [
+        feat(
+          "Auto-leveling headlights; rear privacy glass; body-color lower bumpers, rocker moldings, and fender trim",
+          "Select exterior upgrades vs. 2.5 S.",
+        ),
+        feat(
+          "Six-way power driver seat; six-way manual passenger seat; six-speaker audio; dual-zone climate control; black leatherette seats; heated front seats",
+          "Select comfort and audio.",
+        ),
+        feat(
+          "Mazda Advanced Keyless Entry; rear-seat A/C vents; rear center armrest; two rear USB-A charging ports",
+          "Keyless entry and second-row convenience.",
+        ),
+      ],
+    },
+    {
+      id: "25-s-preferred",
+      name: "2.5 S Preferred",
+      startingMsrp: "$32,230",
+      trimSafetyAdditions: [],
+      addedFeatures: [
+        feat(
+          "19\" black metallic alloy wheels with machine-cut accents (Dec. 2025 production onward); power sliding-glass moonroof; power rear liftgate",
+          "Larger wheels and powered openings (Mazda USA).",
+        ),
+        feat(
+          "Black or parchment leather seats; eight-way power driver seat with lumbar and two-position memory; six-way power passenger seat",
+          "Leather upholstery and power front seats.",
+        ),
+        feat(
+          "Auto-dimming rearview mirror with HomeLink®",
+          "Dimming mirror with garage-door buttons.",
+        ),
+      ],
+      popular: true,
+    },
+    {
+      id: "25-s-carbon-edition",
+      name: "2.5 S Carbon Edition",
+      startingMsrp: "$32,630",
+      trimSafetyAdditions: [],
+      addedFeatures: [
+        feat(
+          "Polymetal Gray exterior; black or red leather with red stitching; black 19\" wheels; gloss black mirrors, bumpers, rockers, arches, and Signature wing",
+          "Carbon Edition exclusive styling.",
+        ),
+        feat(
+          "Gloss black instrument panel and door trim; red-stitched leather steering wheel and shifter",
+          "Black-accent interior with red stitching.",
+        ),
+        feat(
+          "Bose® premium audio (10 speakers) with Centerpoint® and AudioPilot®; wireless phone charging; wireless Apple CarPlay® and Android Auto™",
+          "Bose® and wireless connectivity exclusive to this package level on the NA lineup.",
+        ),
+      ],
+    },
+    {
+      id: "25-s-premium-plus",
+      name: "2.5 S Premium Plus",
+      startingMsrp: "$35,680",
+      trimSafetyAdditions: [SAF_360, SAF_AFS],
+      addedFeatures: [
+        feat(
+          "Mi-Drive (Normal, Off-Road, Sport)",
+          "Selectable drive modes for varied conditions.",
+        ),
+        feat(
+          "360° View Monitor; front and rear parking sensors; gray metallic 19\" alloy wheels; power-folding heated mirrors; windshield wiper de-icer; body-color exterior trim",
+          "Parking assistance and Premium Plus exterior (Mazda USA).",
+        ),
+        feat(
+          "Windshield-projected Active Driving Display; heated steering wheel; ventilated front seats; heated rear seats; 7\" LCD multi-information meter; SiriusXM® three-month trial; paddle shifters; contrasting interior stitching",
+          "Premium Plus interior and driver information.",
+        ),
+      ],
+    },
+    {
+      id: "25-carbon-turbo",
+      name: "2.5 Carbon Turbo",
+      startingMsrp: "$37,200",
+      hidePreviousTrimComparison: true,
+      trimSafetyAdditions: [SAF_360],
+      addedFeatures: [
+        feat(
+          "Skyactiv-G 2.5 Turbo — 256 hp / 320 lb-ft (premium fuel) or 227 hp / 310 lb-ft (regular)",
+          "Turbocharged performance with standard i-Activ AWD®.",
+        ),
+        feat(
+          "Zircon Sand Metallic or Rhodium White exterior; terracotta leather with black suede-like inserts; black headliner; 19\" black metallic wheels",
+          "Carbon Turbo exclusive colors and interior.",
+        ),
+        feat(
+          "Wireless charging; wireless Apple CarPlay® and Android Auto™; heated and ventilated front seats; paddle shifters; Active Driving Display; 360° View Monitor; front and rear parking sensors",
+          "Turbo convenience and tech shared with other 2.5 Turbo grades.",
+        ),
+      ],
+    },
+    {
+      id: "25-turbo-premium",
+      name: "2.5 Turbo Premium",
+      startingMsrp: "$38,280",
+      trimSafetyAdditions: [SAF_TJA],
+      addedFeatures: [
+        feat(
+          "Traffic Jam Assist",
+          "Hands-on low-speed assist in congestion (Mazda USA).",
+        ),
+        feat(
+          "Heated rear seats; automatic power-folding mirrors; windshield wiper de-icer; gloss black front grille",
+          "Comfort and exterior updates vs. Carbon Turbo.",
+        ),
+        feat(
+          "Leather-wrapped heated steering wheel and shifter with red stitching; black instrument cluster and door trim accents",
+          "Turbo Premium interior accents.",
+        ),
+      ],
+    },
+    {
+      id: "25-turbo-signature",
+      name: "2.5 Turbo Signature",
+      startingMsrp: "$41,080",
+      trimSafetyAdditions: [
+        SAF_SBS_REAR_AND_RCTB,
+        feat(
+          "Driver Attention Alert",
+          "Encourages a break if steering patterns suggest reduced attention (added on Turbo Signature; Mazda USA).",
+        ),
+      ],
+      addedFeatures: [
+        feat(
+          "Silver metallic 19\" alloy wheels; aluminum silver bumper trim; gunmetal front grille",
+          "Signature exterior brightwork.",
+        ),
+        feat(
+          "Caturra Brown Nappa leather; genuine woodgrain; LED interior and ambient foot lighting; frameless auto-dimming rearview mirror",
+          "Signature interior materials.",
+        ),
+        feat(
+          "Mazda Navigation System with Off-Road Navigation; Active Driving Display with Traffic Sign Recognition; SiriusXM® Traffic & Travel Link three-year trial",
+          "Navigation, head-up display, and extended SiriusXM services.",
+        ),
+      ],
+    },
+  ],
+};
+
+const TRIM_LINES_CX5_BY_YEAR: Record<ModelYear, ModelTrimLine> = {
+  2025: CX5_TRIM_LINE_2025,
+  2026: CX5_TRIM_LINE_2026,
+};
 
 const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
   "mazda3-sedan": {
@@ -1675,246 +2152,6 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
       },
     ],
   },
-  "cx-5": {
-    sharedSafetyFeatures: SHARED_SAFETY_CX5,
-    trims: [
-      {
-        id: "25-s",
-        name: "2.5 S",
-        startingMsrp: "$29,990",
-        trimSafetyAdditions: [],
-        addedFeatures: [
-          feat(
-            "SKYACTIV-G 2.5L (187 hp / 186 lb-ft)",
-            "Naturally aspirated four-cylinder with six-speed automatic and standard i-Activ AWD®.",
-          ),
-          feat(
-            "Mi-Drive (Normal, Sport, Off-Road)",
-            "Drive modes that tune transmission and AWD behavior for the surface and your mood.",
-          ),
-          feat(
-            "G-Vectoring Control Plus with electronic brake limited-slip differential",
-            "Smoother cornering behavior and improved traction when one wheel has less grip.",
-          ),
-          feat(
-            "Updated shocks, wheels, and tires",
-            "Third-gen CX-5 ride and handling package with revised dampers and tire setup (Mazda USA).",
-          ),
-          feat(
-            '17" wheels',
-            "Standard 17-inch wheels on the entry 2.5 S.",
-          ),
-          feat(
-            "Mazda Connect with Google built-in and Gemini AI assistant",
-            "Large touchscreen Mazda Connect with Google built-in, navigation, and voice assistant (Mazda Connected Services trial applies).",
-          ),
-          feat(
-            '12.9" touchscreen with wired Apple CarPlay® and Android Auto™',
-            "Widescreen center display with wired phone projection plus Google built-in features.",
-          ),
-          feat(
-            "Eight-speaker audio with HD Radio™",
-            "Eight-speaker sound system with HD Radio™ capability.",
-          ),
-          feat(
-            "Dual USB-C ports and dual 12V outlets",
-            "Two USB-C charging ports and two 12-volt power outlets.",
-          ),
-          feat(
-            "Eight-way manual driver’s seat and six-way manual passenger seat",
-            "Manual seat adjustment for driver and front passenger.",
-          ),
-          feat(
-            "Rear bench with center armrest, recline, and 40/20/40 split with pass-through",
-            "Flexible second row for passengers and long cargo.",
-          ),
-          feat(
-            "Dual-zone automatic climate control",
-            "Separate left and right front temperature settings.",
-          ),
-          feat(
-            "Leather-wrapped steering wheel and shift knob",
-            "Leather wrap on primary controls.",
-          ),
-          feat(
-            '10.25" digital driver display',
-            "Large digital instrumentation including tachometer-style readout.",
-          ),
-          feat(
-            "Overhead console with sunglass holder",
-            "Storage in the overhead console for sunglasses.",
-          ),
-        ],
-      },
-      {
-        id: "25-s-select",
-        name: "2.5 S Select",
-        startingMsrp: "$31,990",
-        trimSafetyAdditions: [],
-        addedFeatures: [
-          feat(
-            "Tinted privacy glass",
-            "Darkened rear glass for sun glare and modest cargo concealment.",
-          ),
-          feat(
-            "Auto-folding heated door mirrors",
-            "Side mirrors fold and heat for parking and cold weather.",
-          ),
-          feat(
-            "Leatherette seats with cloth center insert",
-            "Leather-like bolsters with breathable cloth centers.",
-          ),
-          feat(
-            "Frameless auto-dimming rearview mirror",
-            "Slim-frame mirror that dims for glare from headlights behind you.",
-          ),
-          feat(
-            "Sun visors with illuminated vanity mirrors",
-            "Lit mirrors in both front visors.",
-          ),
-          feat(
-            "Rear-seat air vents",
-            "Climate airflow to the second row.",
-          ),
-          feat(
-            "Wireless phone charging",
-            "Qi-compatible charging pad for supported phones.",
-          ),
-          feat(
-            "Keyless entry",
-            "Keyless access to lock and unlock the vehicle.",
-          ),
-          feat(
-            "Wireless Apple CarPlay® and Android Auto™",
-            "Cable-free phone projection on supported devices.",
-          ),
-        ],
-      },
-      {
-        id: "25-s-preferred",
-        name: "2.5 S Preferred",
-        startingMsrp: "$34,250",
-        trimSafetyAdditions: [],
-        addedFeatures: [
-          feat(
-            '19" alloy wheels',
-            "Larger 19-inch alloy wheels versus 17-inch on lower trims.",
-          ),
-          feat(
-            "Roof rails",
-            "Factory rails for approved roof accessories.",
-          ),
-          feat(
-            "Power liftgate",
-            "Powered rear hatch for easier cargo loading.",
-          ),
-          feat(
-            "Memory settings for door mirrors",
-            "Mirrors recall stored positions for different drivers.",
-          ),
-          feat(
-            "Windshield wiper de-icer",
-            "Heated area at the wiper park position for ice and snow.",
-          ),
-          feat(
-            "Full-color Active Driving Display (windshield-projected)",
-            "Head-up style color readouts projected onto the windshield.",
-          ),
-          feat(
-            "Heated front seats and heated steering wheel",
-            "Warmth for front occupants and the steering wheel.",
-          ),
-          feat(
-            "10-way power driver’s seat with memory",
-            "Power driver seat adjustments including memory presets.",
-          ),
-          feat(
-            "HomeLink® integrated in rearview mirror",
-            "Programmable buttons for compatible garage doors and gates.",
-          ),
-        ],
-        popular: true,
-      },
-      {
-        id: "25-s-premium",
-        name: "2.5 S Premium",
-        startingMsrp: "$36,900",
-        trimSafetyAdditions: [],
-        addedFeatures: [
-          feat(
-            "Black contrasting exterior trim",
-            "Black metallic finish on bumper trim, wheel-arch moldings, and side garnishes.",
-          ),
-          feat(
-            '19" Black Metallic alloy wheels',
-            "Black metallic 19-inch wheels.",
-          ),
-          feat(
-            "Signature Illumination LED headlights and taillights",
-            "Mazda signature LED daytime running light treatment front and rear.",
-          ),
-          feat(
-            "Large panoramic sunroof",
-            "Wide glass sunroof for cabin brightness and ventilation.",
-          ),
-          feat(
-            "Leather seating with ventilated front seats",
-            "Leather upholstery with fan-cooled front seats.",
-          ),
-          feat(
-            "Six-way power front passenger seat",
-            "Power adjustments for the front passenger.",
-          ),
-          feat(
-            "Heated rear seats",
-            "Second-row seat heat for rear passengers.",
-          ),
-          feat(
-            "Color-selectable interior ambient lighting",
-            "Ambient lighting adjustable via the infotainment system.",
-          ),
-          feat(
-            "Bose® 12-speaker premium audio with SiriusXM®",
-            "Bose® twelve-speaker system with satellite radio capability.",
-          ),
-          feat(
-            "Two additional rear USB-C ports",
-            "Extra USB-C charging for second-row passengers.",
-          ),
-        ],
-      },
-      {
-        id: "25-s-premium-plus",
-        name: "2.5 S Premium Plus",
-        startingMsrp: "$38,990",
-        trimSafetyAdditions: [
-          SAF_AFS,
-          SAF_FCTA_FCTB,
-          SAF_DRIVER_MONITORING,
-          SAF_360_CX5_EXPANDED,
-          SAF_CTS_LANE_CHANGE_ASSIST,
-        ],
-        addedFeatures: [
-          feat(
-            "Hands-free power rear liftgate",
-            "Open the liftgate with a hands-free gesture where equipped.",
-          ),
-          feat(
-            '15.6" center touchscreen (replaces 12.9")',
-            "Largest infotainment screen in the lineup for maps and controls.",
-          ),
-          feat(
-            "Steering-wheel paddle shifters",
-            "Manual gear control without removing hands far from the wheel.",
-          ),
-          feat(
-            "Driver Personalization System",
-            "Automatically adjusts mirrors and seating toward optimal positions for visibility and control (Mazda USA).",
-          ),
-        ],
-      },
-    ],
-  },
   "cx-70": {
     sharedSafetyFeatures: SHARED_SAFETY_CX70,
     trims: [
@@ -2729,10 +2966,19 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
   },
 };
 
-export function getModelTrimLine(modelId: string): ModelTrimLine | undefined {
+export function getModelTrimLine(
+  modelId: string,
+  year: ModelYear = 2026,
+): ModelTrimLine | undefined {
+  if (modelId === "cx-5") {
+    return TRIM_LINES_CX5_BY_YEAR[year];
+  }
   return TRIM_LINES_BY_MODEL[modelId];
 }
 
-export function getTrimsForModel(modelId: string): ModelTrim[] {
-  return TRIM_LINES_BY_MODEL[modelId]?.trims ?? [];
+export function getTrimsForModel(
+  modelId: string,
+  year: ModelYear = 2026,
+): ModelTrim[] {
+  return getModelTrimLine(modelId, year)?.trims ?? [];
 }
