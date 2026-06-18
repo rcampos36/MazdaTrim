@@ -26,6 +26,7 @@ import {
 } from "@/data/mazda-trims";
 import { getTrimWheelSpec } from "@/data/mazda-wheel-specs";
 import { CertifiedPreOwnedModal } from "@/components/CertifiedPreOwnedModal";
+import { LeaseFinanceModal } from "@/components/LeaseFinanceModal";
 import { ModelSilhouette } from "@/components/ModelSilhouette";
 
 type ComparePick = {
@@ -864,6 +865,7 @@ export function MazdaModelExplorer() {
     b: ComparePick;
   } | null>(null);
   const [cpoOpen, setCpoOpen] = useState(false);
+  const [leaseFinanceOpen, setLeaseFinanceOpen] = useState(false);
 
   const models = useMemo(() => getModelsForYear(year), [year]);
 
@@ -954,6 +956,16 @@ export function MazdaModelExplorer() {
         </p>
 
         <div className="mt-5 flex flex-col items-center gap-3 sm:mt-6">
+          <button
+            type="button"
+            onClick={() => {
+              setLeaseFinanceOpen(true);
+              if (compareMode) cancelCompareMode();
+            }}
+            className="inline-flex min-h-11 w-full max-w-md items-center justify-center rounded-full border border-zinc-300 bg-zinc-50 px-5 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 sm:min-h-0 sm:w-auto sm:py-2 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+          >
+            Lease vs finance
+          </button>
           <button
             type="button"
             onClick={() => {
@@ -1060,6 +1072,10 @@ export function MazdaModelExplorer() {
 
       {cpoOpen ? (
         <CertifiedPreOwnedModal onClose={() => setCpoOpen(false)} />
+      ) : null}
+
+      {leaseFinanceOpen ? (
+        <LeaseFinanceModal onClose={() => setLeaseFinanceOpen(false)} />
       ) : null}
     </div>
   );
