@@ -97,10 +97,29 @@ function FormField({
 const inputClassName =
   "min-h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm transition-colors placeholder:text-zinc-400 focus:border-[var(--mazda-accent,#c40012)] focus:outline-none focus:ring-2 focus:ring-[var(--mazda-accent,#c40012)]/25 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500";
 
-export function LeaseFinanceModal({ onClose }: { onClose: () => void }) {
+export type LeaseFinanceModalProps = {
+  onClose: () => void;
+  /** Pre-fill MSRP from the selected trim; still editable in the form. */
+  initialMsrp?: number;
+  /** e.g. "2026 CX-5 — Select" */
+  vehicleLabel?: string;
+};
+
+function createInitialForm(initialMsrp?: number): LeaseFinanceFormValues {
+  return {
+    ...DEFAULT_FORM,
+    carPrice: initialMsrp ? String(initialMsrp) : "",
+  };
+}
+
+export function LeaseFinanceModal({
+  onClose,
+  initialMsrp,
+  vehicleLabel,
+}: LeaseFinanceModalProps) {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const formId = useId();
-  const [form, setForm] = useState<LeaseFinanceFormValues>(DEFAULT_FORM);
+  const [form, setForm] = useState(() => createInitialForm(initialMsrp));
 
   const leaseEstimate = useMemo(() => {
     const carPrice = parseFormNumber(form.carPrice);
@@ -278,9 +297,14 @@ export function LeaseFinanceModal({ onClose }: { onClose: () => void }) {
                 >
                   Lease vs finance
                 </h2>
+                {vehicleLabel ? (
+                  <p className="mt-2 text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                    {vehicleLabel}
+                  </p>
+                ) : null}
                 <p className="mt-2 text-sm text-pretty text-zinc-600 dark:text-zinc-400">
                   Enter your numbers below to compare estimated lease and finance
-                  payments.
+                  payments. MSRP can be adjusted from the trim starting price.
                 </p>
               </div>
               <button
@@ -311,7 +335,11 @@ export function LeaseFinanceModal({ onClose }: { onClose: () => void }) {
                   <FormField
                     id={`${formId}-car-price`}
                     label="MSRP"
-                    hint="Manufacturer suggested retail price before taxes and fees."
+                    hint={
+                      vehicleLabel
+                        ? "Starting price from your selected trim — change if your agreed price differs."
+                        : "Manufacturer suggested retail price before taxes and fees."
+                    }
                   >
                     <div className="relative">
                       <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-zinc-500">

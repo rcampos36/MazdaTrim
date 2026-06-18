@@ -27,7 +27,13 @@ import {
 import { getTrimWheelSpec } from "@/data/mazda-wheel-specs";
 import { CertifiedPreOwnedModal } from "@/components/CertifiedPreOwnedModal";
 import { LeaseFinanceModal } from "@/components/LeaseFinanceModal";
+import { parseStartingMsrp } from "@/lib/lease-calculations";
 import { ModelSilhouette } from "@/components/ModelSilhouette";
+
+type LeaseFinanceSelection = {
+  initialMsrp: number;
+  vehicleLabel: string;
+};
 
 type ComparePick = {
   modelId: string;
@@ -866,6 +872,8 @@ export function MazdaModelExplorer() {
   } | null>(null);
   const [cpoOpen, setCpoOpen] = useState(false);
   const [leaseFinanceOpen, setLeaseFinanceOpen] = useState(false);
+  const [leaseFinanceSelection, setLeaseFinanceSelection] =
+    useState<LeaseFinanceSelection | null>(null);
 
   const models = useMemo(() => getModelsForYear(year), [year]);
 
@@ -902,6 +910,16 @@ export function MazdaModelExplorer() {
     setCompareFirst(null);
     setComparePair(null);
     setSelectedId(null);
+  }
+
+  function openLeaseFinance(selection?: LeaseFinanceSelection) {
+    setLeaseFinanceSelection(selection ?? null);
+    setLeaseFinanceOpen(true);
+  }
+
+  function closeLeaseFinance() {
+    setLeaseFinanceOpen(false);
+    setLeaseFinanceSelection(null);
   }
 
   function cancelCompareMode() {
@@ -959,7 +977,7 @@ export function MazdaModelExplorer() {
           <button
             type="button"
             onClick={() => {
-              setLeaseFinanceOpen(true);
+              openLeaseFinance();
               if (compareMode) cancelCompareMode();
             }}
             className="inline-flex min-h-11 w-full max-w-md items-center justify-center rounded-full border border-zinc-300 bg-zinc-50 px-5 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 sm:min-h-0 sm:w-auto sm:py-2 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
@@ -1057,6 +1075,7 @@ export function MazdaModelExplorer() {
           onClose={closeTrimsModal}
           compareSlot={trimModalCompareSlot}
           onPickTrimForCompare={compareMode ? onTrimPickedForCompare : undefined}
+          onOpenLeaseFinance={openLeaseFinance}
         />
       ) : null}
 
@@ -1075,7 +1094,15 @@ export function MazdaModelExplorer() {
       ) : null}
 
       {leaseFinanceOpen ? (
-        <LeaseFinanceModal onClose={() => setLeaseFinanceOpen(false)} />
+        <LeaseFinanceModal
+          key={
+            leaseFinanceSelection?.vehicleLabel ??
+            `lease-finance-${leaseFinanceSelection?.initialMsrp ?? "custom"}`
+          }
+          initialMsrp={leaseFinanceSelection?.initialMsrp}
+          vehicleLabel={leaseFinanceSelection?.vehicleLabel}
+          onClose={closeLeaseFinance}
+        />
       ) : null}
     </div>
   );
@@ -1275,12 +1302,14 @@ function TrimsModal({
   onClose,
   compareSlot,
   onPickTrimForCompare,
+  onOpenLeaseFinance,
 }: {
   model: MazdaModel;
   year: ModelYear;
   onClose: () => void;
   compareSlot?: 1 | 2;
   onPickTrimForCompare?: (trimId: string) => void;
+  onOpenLeaseFinance?: (selection: LeaseFinanceSelection) => void;
 }) {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const compareMode = Boolean(compareSlot && onPickTrimForCompare);
@@ -1332,6 +1361,7 @@ function TrimsModal({
               closeButtonRef={closeBtnRef}
               compareSlot={compareSlot}
               onPickTrimForCompare={onPickTrimForCompare}
+              onOpenLeaseFinance={onOpenLeaseFinance}
             />
           </div>
         </div>
@@ -1442,6 +1472,7 @@ function TrimPricingSection({
   closeButtonRef,
   compareSlot,
   onPickTrimForCompare,
+  onOpenLeaseFinance,
 }: {
   model: MazdaModel;
   year: ModelYear;
@@ -1449,6 +1480,7 @@ function TrimPricingSection({
   closeButtonRef?: RefObject<HTMLButtonElement | null>;
   compareSlot?: 1 | 2;
   onPickTrimForCompare?: (trimId: string) => void;
+  onOpenLeaseFinance?: (selection: LeaseFinanceSelection) => void;
 }) {
   const trimLine = useMemo(
     () => getModelTrimLine(model.id, year),
@@ -1638,6 +1670,20 @@ function TrimPricingSection({
                       ? () => onPickTrimForCompare(trim.id)
                       : undefined
                   }
+                  onOpenLeaseFinance={
+                    comparePick || !onOpenLeaseFinance
+                      ? undefined
+                      : () => {
+                          const initialMsrp = parseStartingMsrp(
+                            trim.startingMsrp,
+                          );
+                          if (initialMsrp === null) return;
+                          onOpenLeaseFinance({
+                            initialMsrp,
+                            vehicleLabel: `${year} ${model.name} — ${trim.name}`,
+                          });
+                        }
+                  }
                 />
               </li>
             ))}
@@ -1655,6 +1701,7 @@ function TrimPricingCard({
   previousTrimName,
   comparePick,
   onSelectForCompare,
+  onOpenLeaseFinance,
 }: {
   trim: ModelTrim;
   modelId: string;
@@ -1662,6 +1709,7 @@ function TrimPricingCard({
   previousTrimName: string | null;
   comparePick?: boolean;
   onSelectForCompare?: () => void;
+  onOpenLeaseFinance?: () => void;
 }) {
   const perfSpec = getTrimPerfSpec(modelId, trim.id);
   const [trimImageFailed, setTrimImageFailed] = useState(false);
@@ -1715,6 +1763,15 @@ function TrimPricingCard({
         <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-900 tabular-nums sm:text-3xl dark:text-zinc-50">
           {trim.startingMsrp}
         </p>
+        {onOpenLeaseFinance ? (
+          <button
+            type="button"
+            onClick={onOpenLeaseFinance}
+            className="mt-3 w-full rounded-lg border border-[var(--mazda-accent,#c40012)]/40 bg-white px-4 py-2.5 text-sm font-semibold text-[var(--mazda-accent,#c40012)] transition-colors hover:bg-[var(--mazda-accent,#c40012)]/5 dark:border-[var(--mazda-accent,#c40012)]/50 dark:bg-zinc-950 dark:hover:bg-[var(--mazda-accent,#c40012)]/10"
+          >
+            Lease vs finance
+          </button>
+        ) : null}
         {perfSpec ? <TrimPerfRow spec={perfSpec} /> : null}
       </div>
 
