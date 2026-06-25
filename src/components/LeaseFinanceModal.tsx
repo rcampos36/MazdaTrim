@@ -3,6 +3,7 @@
 import {
   calculateFinancePayment,
   calculateLeasePayment,
+  calculateResidualFromMsrp,
   calculateSalesTax,
   formatUsd,
   parseFormNumber,
@@ -39,7 +40,7 @@ export type LeaseFinanceFormValues = {
   financeTermMonths: string;
   leaseTermMonths: string;
   moneyFactor: string;
-  residualValue: string;
+  residualPercent: string;
   annualMileageLimit: string;
   salesTaxState: string;
   processingFee: string;
@@ -56,7 +57,7 @@ const DEFAULT_FORM: LeaseFinanceFormValues = {
   financeTermMonths: "60",
   leaseTermMonths: "36",
   moneyFactor: "0.00125",
-  residualValue: "",
+  residualPercent: "60",
   annualMileageLimit: "12000",
   salesTaxState: DEFAULT_SALES_TAX_STATE,
   processingFee: String(DEFAULT_PROCESSING_FEE),
@@ -123,22 +124,23 @@ export function LeaseFinanceModal({
 
   const leaseEstimate = useMemo(() => {
     const carPrice = parseFormNumber(form.carPrice);
-    const residualValue = parseFormNumber(form.residualValue);
+    const residualPercent = parseFormNumber(form.residualPercent);
     const leaseTermMonths = parseFormNumber(form.leaseTermMonths) ?? 36;
     const moneyFactor = parseFormNumber(form.moneyFactor) ?? 0.00125;
     const downPayment = parseFormNumber(form.leaseDownPayment) ?? 0;
     const annualMileageLimit =
       parseFormNumber(form.annualMileageLimit) ?? 12000;
 
-    if (
-      carPrice === null ||
-      residualValue === null ||
-      carPrice - downPayment < 0
-    ) {
+    if (carPrice === null || residualPercent === null || carPrice - downPayment < 0) {
       return null;
     }
 
-    return calculateLeasePayment({
+    const residualValue = calculateResidualFromMsrp(carPrice, residualPercent);
+    if (residualValue === null) {
+      return null;
+    }
+
+    const result = calculateLeasePayment({
       carPrice,
       residualValue,
       leaseTermMonths,
@@ -146,9 +148,19 @@ export function LeaseFinanceModal({
       downPayment,
       annualMileageLimit,
     });
+
+    if (!result) {
+      return null;
+    }
+
+    return {
+      ...result,
+      residualPercent,
+      msrp: carPrice,
+    };
   }, [
     form.carPrice,
-    form.residualValue,
+    form.residualPercent,
     form.leaseTermMonths,
     form.moneyFactor,
     form.leaseDownPayment,
@@ -703,27 +715,28 @@ export function LeaseFinanceModal({
                 </h3>
                 <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
-                    id={`${formId}-residual-value`}
-                    label="Residual value"
-                    hint="Expected value at lease end at 12,000 mi/yr. Mileage selection adjusts this."
+                    id={`${formId}-residual-percent`}
+                    label="Residual value (% of MSRP)"
+                    hint="Expected lease-end value as a percent of full MSRP; dollar amount is calculated for you."
                   >
                     <div className="relative">
-                      <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-zinc-500">
-                        $
-                      </span>
                       <input
-                        id={`${formId}-residual-value`}
+                        id={`${formId}-residual-percent`}
                         type="number"
                         inputMode="decimal"
                         min={0}
-                        step={100}
-                        placeholder="21000"
-                        value={form.residualValue}
+                        max={100}
+                        step={0.1}
+                        placeholder="60"
+                        value={form.residualPercent}
                         onChange={(e) =>
-                          updateField("residualValue", e.target.value)
+                          updateField("residualPercent", e.target.value)
                         }
-                        className={`${inputClassName} pl-7`}
+                        className={`${inputClassName} pr-8`}
                       />
+                      <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-zinc-500">
+                        %
+                      </span>
                     </div>
                   </FormField>
 
@@ -821,7 +834,7 @@ export function LeaseFinanceModal({
 
                 {!leaseEstimate ? (
                   <p className="mt-4 text-sm text-pretty text-zinc-500 dark:text-zinc-400">
-                    Enter MSRP (above), residual value, and lease term to see an
+                    Enter MSRP (above), residual percent, and lease term to see an
                     estimated monthly payment. Money factor defaults to 0.00125 if
                     left blank.
                   </p>
@@ -846,7 +859,16 @@ export function LeaseFinanceModal({
                       </div>
                       <div className="flex items-baseline justify-between gap-4">
                         <dt className="text-sm text-zinc-600 dark:text-zinc-400">
-                          Residual value ({leaseEstimate.annualMileageLimit.toLocaleString()}{" "}
+                          Base residual ({leaseEstimate.residualPercent}% of MSRP)
+                        </dt>
+                        <dd className="text-sm font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
+                          {formatUsd(leaseEstimate.baseResidualValue)}
+                        </dd>
+                      </div>
+                      <div className="flex items-baseline justify-between gap-4">
+                        <dt className="text-sm text-zinc-600 dark:text-zinc-400">
+                          Residual value (
+                          {leaseEstimate.annualMileageLimit.toLocaleString()}{" "}
                           mi/yr)
                         </dt>
                         <dd className="text-sm font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
@@ -902,10 +924,10 @@ export function LeaseFinanceModal({
                       </div>
                     </dl>
                     <p className="mt-3 text-xs text-pretty text-zinc-500 dark:text-zinc-400">
-                      Higher mileage lowers the residual (~$0.20 per mile over the
-                      lease vs 12,000 mi/yr). Depreciation = (car price − down
-                      payment − adjusted residual) ÷ lease term. Rent charge =
-                      (adjusted cap cost + adjusted residual) × money factor.
+                      Base residual = MSRP × residual percent. Higher mileage
+                      lowers the residual (~$0.20 per mile over the lease vs
+                      12,000 mi/yr). Depreciation = (car price − down payment −
+                      adjusted residual) ÷ lease term.
                     </p>
                   </div>
                 ) : null}

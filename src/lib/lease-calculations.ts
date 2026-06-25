@@ -1,3 +1,21 @@
+/** Residual dollar value from MSRP and residual percentage (e.g. 60 → 60%). */
+export function calculateResidualFromMsrp(
+  msrp: number,
+  residualPercent: number,
+): number | null {
+  if (
+    !Number.isFinite(msrp) ||
+    msrp < 0 ||
+    !Number.isFinite(residualPercent) ||
+    residualPercent < 0 ||
+    residualPercent > 100
+  ) {
+    return null;
+  }
+
+  return msrp * (residualPercent / 100);
+}
+
 export type LeaseCalculationInput = {
   carPrice: number;
   residualValue: number;
