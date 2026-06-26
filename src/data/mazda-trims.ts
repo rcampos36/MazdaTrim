@@ -1651,7 +1651,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           ),
           feat(
             "Windshield-projected Active Driving Display",
-            "Projects speed, safety, and navigation cues ahead of you to reduce eyes-off-road time.",
+            "Head-up display (HUD) projected on the windshield for speed, safety, and navigation cues.",
           ),
           feat(
             "Black or white leather-trimmed seats",
@@ -1693,6 +1693,10 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
             "Same modern black-badge look as the 2.5 S Aire Edition with a light cabin theme.",
           ),
           feat(
+            "Windshield-projected Active Driving Display",
+            "Head-up display (HUD) projected on the windshield for speed, safety, and navigation cues.",
+          ),
+          feat(
             '18" black metallic aluminum-alloy wheels',
             "Black metallic wheels coordinated with Turbo Aire exterior trim.",
             ['18" silver metallic aluminum-alloy wheels'],
@@ -1727,6 +1731,10 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Steering-wheel-mounted paddle shifters",
             "Manual gear control without taking hands far from the wheel.",
+          ),
+          feat(
+            "Windshield-projected Active Driving Display",
+            "Head-up display (HUD) projected on the windshield for speed, safety, and navigation cues.",
           ),
           feat(
             "SiriusXM® with three-month trial",
