@@ -1,5 +1,3 @@
-import type { ModelYear } from "./mazda-models";
-
 /** Wheel diameter and finish by model/trim — sourced from Mazda USA press releases & vehicle pages. */
 export type TrimWheelSpecEntry = {
   size: string;
@@ -15,7 +13,7 @@ function spec(
   return { size, finish, note };
 }
 
-/** `modelId` → trimId → spec (2026 model year unless noted). */
+/** `modelId` → trimId → spec (2026 model year). */
 const WHEEL_SPECS_BY_MODEL: Record<string, Record<string, TrimWheelSpecEntry>> = {
   "mazda3-sedan": {
     "25-s": spec('16"', "Silver aluminum-alloy"),
@@ -73,6 +71,17 @@ const WHEEL_SPECS_BY_MODEL: Record<string, Record<string, TrimWheelSpecEntry>> =
       '20"',
       "Black Metallic machine-finish alloy",
       "White Interior Option: 20-inch Silver machine-finish alloy.",
+    ),
+  },
+  "cx-5": {
+    "25-s": spec('17"', "Gray Metallic alloy"),
+    "25-s-select": spec('17"', "Gray Metallic alloy"),
+    "25-s-preferred": spec('19"', "Alloy"),
+    "25-s-premium": spec('19"', "Black Metallic alloy"),
+    "25-s-premium-plus": spec(
+      '19"',
+      "Black Metallic alloy",
+      "Same 19-inch wheels as 2.5 S Premium.",
     ),
   },
   "cx-50-hybrid": {
@@ -164,38 +173,6 @@ const WHEEL_SPECS_BY_MODEL: Record<string, Record<string, TrimWheelSpecEntry>> =
   },
 };
 
-const WHEEL_SPECS_CX5_BY_YEAR: Record<ModelYear, Record<string, TrimWheelSpecEntry>> = {
-  2026: {
-    "25-s": spec('17"', "Gray Metallic alloy"),
-    "25-s-select": spec('17"', "Gray Metallic alloy"),
-    "25-s-preferred": spec('19"', "Alloy"),
-    "25-s-premium": spec('19"', "Black Metallic alloy"),
-    "25-s-premium-plus": spec(
-      '19"',
-      "Black Metallic alloy",
-      "Same 19-inch wheels as 2.5 S Premium.",
-    ),
-  },
-  2025: {
-    "25-s": spec('17"', "Gray Metallic alloy"),
-    "25-s-select": spec('17"', "Gray Metallic alloy"),
-    "25-s-preferred": spec(
-      '19"',
-      "Black Metallic with machine-cut accents",
-      "Dec. 2025 production onward; earlier builds used 17-inch Gray Metallic alloy.",
-    ),
-    "25-s-carbon-edition": spec('19"', "Black Metallic alloy"),
-    "25-s-premium-plus": spec('19"', "Gray Metallic alloy"),
-    "25-carbon-turbo": spec('19"', "Black Metallic alloy"),
-    "25-turbo-premium": spec(
-      '19"',
-      "Black Metallic alloy",
-      "Same 19-inch wheels as 2.5 Carbon Turbo.",
-    ),
-    "25-turbo-signature": spec('19"', "Silver Metallic alloy"),
-  },
-};
-
 const FALLBACK: TrimWheelSpecEntry = {
   size: "N/A",
   finish: "Verify on Mazda USA build-and-price",
@@ -205,10 +182,6 @@ const FALLBACK: TrimWheelSpecEntry = {
 export function getTrimWheelSpec(
   modelId: string,
   trimId: string,
-  year: ModelYear = 2026,
 ): TrimWheelSpecEntry {
-  if (modelId === "cx-5") {
-    return WHEEL_SPECS_CX5_BY_YEAR[year][trimId] ?? FALLBACK;
-  }
   return WHEEL_SPECS_BY_MODEL[modelId]?.[trimId] ?? FALLBACK;
 }

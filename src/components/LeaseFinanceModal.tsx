@@ -8,6 +8,7 @@ import {
   formatUsd,
   parseFormNumber,
 } from "@/lib/lease-calculations";
+import { MSRP_PRICE_NOTE } from "@/lib/msrp-disclaimer";
 import {
   DEFAULT_PROCESSING_FEE,
   DEFAULT_SALES_TAX_STATE,
@@ -316,7 +317,8 @@ export function LeaseFinanceModal({
                 ) : null}
                 <p className="mt-2 text-sm text-pretty text-zinc-600 dark:text-zinc-400">
                   Enter your numbers below to compare estimated lease and finance
-                  payments. MSRP can be adjusted from the trim starting price.
+                  payments. {MSRP_PRICE_NOTE} MSRP can be adjusted from the trim
+                  starting price.
                 </p>
               </div>
               <button
@@ -349,8 +351,8 @@ export function LeaseFinanceModal({
                     label="MSRP"
                     hint={
                       vehicleLabel
-                        ? "Starting price from your selected trim — change if your agreed price differs."
-                        : "Manufacturer suggested retail price before taxes and fees."
+                        ? `Starting price from your selected trim. ${MSRP_PRICE_NOTE} Change if your agreed price differs.`
+                        : `Manufacturer suggested retail price before taxes and fees. ${MSRP_PRICE_NOTE}`
                     }
                   >
                     <div className="relative">

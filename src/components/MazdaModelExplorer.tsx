@@ -14,10 +14,8 @@ import {
   MAZDA_USA_ORIGIN,
   getMazdaUsaImageUrl,
   getModelCardImageClassName,
-  getModelsForYear,
-  MAZDA_MODEL_YEARS,
+  MAZDA_MODELS,
   type MazdaModel,
-  type ModelYear,
 } from "@/data/mazda-models";
 import {
   getModelTrimLine,
@@ -27,7 +25,13 @@ import {
 import { getTrimWheelSpec } from "@/data/mazda-wheel-specs";
 import { CertifiedPreOwnedModal } from "@/components/CertifiedPreOwnedModal";
 import { LeaseFinanceModal } from "@/components/LeaseFinanceModal";
+import {
+  TrimFeatureFilterModal,
+  type TrimFeatureFilterSelection,
+} from "@/components/TrimFeatureFilterModal";
+import { MsrpPriceDisclaimer } from "@/components/MsrpPriceDisclaimer";
 import { parseStartingMsrp } from "@/lib/lease-calculations";
+import { MSRP_SECTION_INTRO } from "@/lib/msrp-disclaimer";
 import { ModelSilhouette } from "@/components/ModelSilhouette";
 
 type LeaseFinanceSelection = {
@@ -43,10 +47,9 @@ type ComparePick = {
 function trimLabelForPick(
   pick: ComparePick,
   models: MazdaModel[],
-  year: ModelYear,
 ): string | null {
   const model = models.find((m) => m.id === pick.modelId);
-  const line = getModelTrimLine(pick.modelId, year);
+  const line = getModelTrimLine(pick.modelId);
   const trim = line?.trims.find((t) => t.id === pick.trimId);
   if (!model || !trim) return null;
   return `${model.name} · ${trim.name}`;
@@ -123,6 +126,18 @@ const TRIM_IMAGE_PATHS: Record<string, Record<string, string>> = {
     "25-turbo-premium-plus":
       "/siteassets/vehicles/2026/cx-50/04_btv/001_trims/34-jellies/turbo-premium-plus/2026-cx50-2-5-turbo-premium-plues-cypress.png",
   },
+  "cx-5": {
+    "25-s":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s/2026-cx5-2-5s-jetblack.png",
+    "25-s-select":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-select/2026-Mazda-CX-5-2.5-S-Select.png",
+    "25-s-preferred":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-preferred/2026-Mazda-CX-5-2.5-S-Preferred.png",
+    "25-s-premium":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-premium/2026-cx5-2-5-premium-aerogray.png",
+    "25-s-premium-plus":
+      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-premium-plus/2026-cx5-2-5-premium-plus-soul-red.png",
+  },
   "cx-70": {
     "33-turbo-preferred":
       "/siteassets/vehicles/2026/cx-70/04_btv/001_trims/34-jellies/turbo-preferred/mazda-cx-70-3.3-turbo--preferred",
@@ -153,7 +168,7 @@ const TRIM_IMAGE_PATHS: Record<string, Record<string, string>> = {
     "33-turbo-s-premium-plus":
       "/siteassets/vehicles/2025/cx-90--cx-90-phev/06_btv/cx-90-inline/001_trims/34-jellies/3.3-turbo-s-premium-plus/2025-mazda-cx-90-3.3-turbo-s-premium-plus",
     "phev-preferred":
-      "/siteassets/vehicles/2026/cx-90-phev/04_btv/004_exterior/ext.-360s/2026-phev-premium-sport/41w/e360-my26-cx90-phev-premium-sport-jetblack-000.jpg",
+      "/siteassets/vehicles/2026/cx-90-phev/04_btv/001_trims/34-jellies/2026-phev-preferred/2026-cx90-phev-preferred-rhodium-white.png",
     "phev-premium-sport":
       "/siteassets/vehicles/2025/cx-90--cx-90-phev/06_btv/cx-90-phev/001_trims/34-jellies/phev-premium-sport/2025-mazda-cx-90-phev-premium-sport",
     "phev-premium-plus":
@@ -179,7 +194,7 @@ const TRIM_IMAGE_PATHS: Record<string, Record<string, string>> = {
     "hybrid-preferred":
       "/siteassets/vehicles/2025/cx-50-hybrid/04_btv/001_trims/34-jellies/hybrid-preferred/2025-mazda-cx-50-hybrid-preferred",
     "hybrid-premium":
-      "/siteassets/vehicles/2026/cx-50-hybrid/04_btv/004_exterior/ext.-360s/hybrid-premium/machine-gray-46g/e360-my25-cx50-hybrid-premium-machinegray-000.jpg",
+      "/siteassets/vehicles/2026/cx-50-hybrid/04_btv/001_trims/34-jellies/2026-cx50-hybrid-premium-ingotblue.png",
     "hybrid-premium-plus":
       "/siteassets/vehicles/2025/cx-50-hybrid/04_btv/001_trims/34-jellies/hybrid-premium-plus/2025-mazda-cx-50-hybrid-premium-plus",
   },
@@ -187,7 +202,7 @@ const TRIM_IMAGE_PATHS: Record<string, Record<string, string>> = {
 
 const MODEL_SINGLE_IMAGE_FALLBACK_PATHS: Record<string, string> = {
   "mazda3-sedan":
-    "/siteassets/vehicles/2026/mazda3-sedan/04_btv/001_trims/34-jellies/b_2.5-s-select-sport/2024-m3-select-sport-platinum-quartz.png",
+    "/siteassets/vehicles/2026/mazda3-sedan/04_btv/001_trims/34-jellies/e_turbo-premium-plus/2025-mazda-3-sedan-2.5-turbo-premium-plus",
   "mazda3-hatchback":
     "/siteassets/vehicles/2026/mazda3-hatchback/04_btv/004_exterior/ext.-360s/01_2.5-s/41w-2/e360-my26-m3-hatchback-2-5-s-jet-black-000.jpg",
   "cx-30":
@@ -199,7 +214,7 @@ const MODEL_SINGLE_IMAGE_FALLBACK_PATHS: Record<string, string> = {
   "cx-70":
     "/siteassets/vehicles/2026/cx-70/04_btv/001_trims/34-jellies/turbo-premium/mazda-cx-70-3.3-turbo-premium.png",
   "cx-90":
-    "/siteassets/vehicles/2026/cx-90/04_btv/001_trims/34-jellies/3.3-turbo-select/2025-cx90-3.3-turbo-select-jetblack.png",
+    "/siteassets/vehicles/2026/cx-90/04_btv/001_trims/34-jellies/3.3-turbo-premium-plus/2026-cx90-inline-6-premium-plus-artisan-red.png",
   "mx-5-miata":
     "/siteassets/vehicles/2026/mx-5-st/04_btv/001_trims/34-jellies/sport/2026-mazda-mx-5-miata-sport.png",
   "mx-5-miata-rf":
@@ -208,55 +223,26 @@ const MODEL_SINGLE_IMAGE_FALLBACK_PATHS: Record<string, string> = {
     "/siteassets/vehicles/2026/cx-50-hybrid/04_btv/001_trims/34-jellies/2026-cx50-hybrid-premium-ingotblue.png",
 };
 
-/** 2025 CX-5 trim jellies live under `05_btv` (extensionless Sitecore URLs, like CX-50 Hybrid). */
-const TRIM_IMAGE_PATHS_CX5: Record<ModelYear, Record<string, string>> = {
-  2025: {
-    "25-s":
-      "/siteassets/vehicles/2025/cx-5/05_btv/001_trims/34-jellies/2.5-s/2025-Mazda-CX-5-2.5-S",
-    "25-s-select":
-      "/siteassets/vehicles/2025/cx-5/05_btv/001_trims/34-jellies/2.5-s-select/2025-Mazda-CX-5-2.5-S-Select",
-    "25-s-preferred":
-      "/siteassets/vehicles/2025/cx-5/05_btv/001_trims/34-jellies/2.5-s-preferred/2025-Mazda-CX-5-2.5-S-Preferred",
-    "25-s-carbon-edition":
-      "/siteassets/vehicles/2025/cx-5/05_btv/001_trims/34-jellies/2.5-s-carbon-edition/2025-Mazda-CX-5-2.5-S-Carbon-edition",
-    "25-s-premium-plus":
-      "/siteassets/vehicles/2025/cx-5/05_btv/001_trims/34-jellies/2.5-s-premium-plus/2025-Mazda-CX-5-2.5-S-Premium-Plus",
-    "25-carbon-turbo":
-      "/siteassets/vehicles/2025/cx-5/02_gallery/2025-mazda-cx-5-crossover-suv-available-turbo-engine",
-    "25-turbo-premium":
-      "/siteassets/vehicles/2025/cx-5/02_gallery/2025-mazda-cx-5-crossover-suv-eye-catching-design",
-    "25-turbo-signature":
-      "/siteassets/vehicles/2025/cx-5/05_btv/002_exterior/ext.-360s/2.5-turbo-signature/46v/e360-my24-cx50-turbo_signature-soulred-000.jpg",
-  },
-  2026: {
-    "25-s":
-      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s/2026-cx5-2-5s-jetblack.png",
-    "25-s-select":
-      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-select/2026-Mazda-CX-5-2.5-S-Select.png",
-    "25-s-preferred":
-      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-preferred/2026-Mazda-CX-5-2.5-S-Preferred.png",
-    "25-s-premium":
-      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-premium/2026-cx5-2-5-premium-aerogray.png",
-    "25-s-premium-plus":
-      "/siteassets/vehicles/2026/cx-5/04_btv/001_trims/34-jellies/2.5-s-premium-plus/2026-cx5-2-5-premium-plus-soul-red.png",
-  },
-};
-
-function getTrimImageUrl(
-  modelId: string,
-  trimId: string,
-  year: ModelYear = 2026,
-): string {
-  const path =
-    modelId === "cx-5"
-      ? TRIM_IMAGE_PATHS_CX5[year][trimId]
-      : TRIM_IMAGE_PATHS[modelId]?.[trimId];
+function getTrimImageUrl(modelId: string, trimId: string): string {
+  const path = TRIM_IMAGE_PATHS[modelId]?.[trimId];
   const fallbackPath = MODEL_SINGLE_IMAGE_FALLBACK_PATHS[modelId];
-  if (!path && !fallbackPath) return getMazdaUsaImageUrl(modelId, year);
+  if (!path && !fallbackPath) return getMazdaUsaImageUrl(modelId);
   const resolvedPath = path ?? fallbackPath;
-  if (!resolvedPath) return getMazdaUsaImageUrl(modelId, year);
+  if (!resolvedPath) return getMazdaUsaImageUrl(modelId);
   if (resolvedPath.startsWith("http")) return resolvedPath;
   return `${MAZDA_USA_ORIGIN}${resolvedPath}?w=720`;
+}
+
+/** Exterior 360° photos need different cropping than jelly PNGs. */
+function isTrimExteriorPhoto(imageUrl: string): boolean {
+  return imageUrl.includes("ext.-360s") || imageUrl.includes("/e360-");
+}
+
+function getTrimImageClassName(imageUrl: string): string {
+  if (isTrimExteriorPhoto(imageUrl)) {
+    return "object-cover object-center scale-[1.38] sm:scale-[1.42]";
+  }
+  return "object-contain object-center scale-[1.06] sm:scale-[1.08]";
 }
 
 const MODEL_DIMENSIONS: Record<string, TrimFeatureItem[]> = {
@@ -386,24 +372,7 @@ const MODEL_DIMENSIONS: Record<string, TrimFeatureItem[]> = {
       description: "29.2 cu ft behind rear seats.",
     },
   ],
-};
-
-const MODEL_DIMENSIONS_CX5: Record<ModelYear, TrimFeatureItem[]> = {
-  2025: [
-    {
-      name: "Exterior size",
-      description: "Length 180.1 in, width 72.6 in, height 65.4 in.",
-    },
-    {
-      name: "Wheelbase",
-      description: "106.2 in.",
-    },
-    {
-      name: "Cargo capacity",
-      description: "30.8 cu ft behind rear seats.",
-    },
-  ],
-  2026: [
+  "cx-5": [
     {
       name: "Exterior size",
       description: "Length 184.6 in, width 73.2 in, height 65.4 in (approx.).",
@@ -414,17 +383,7 @@ const MODEL_DIMENSIONS_CX5: Record<ModelYear, TrimFeatureItem[]> = {
     },
     {
       name: "Cargo capacity",
-      description: "About 32.8 cu ft behind rear seats (longer cargo floor vs 2025).",
-    },
-  ],
-};
-
-const MODEL_DIMENSION_DIFF_2026: Record<string, TrimFeatureItem[]> = {
-  "cx-5": [
-    {
-      name: "Difference vs 2025",
-      description:
-        "Length +4.5 in and wheelbase +4.5 in vs 2025 (cargo floor is also about 2.0 in longer).",
+      description: "About 32.8 cu ft behind rear seats.",
     },
   ],
 };
@@ -616,24 +575,6 @@ const MODEL_TRIM_COLOR_AVAILABILITY: Record<string, ModelTrimColorAvailability> 
       "Polymetal Gray Metallic + Sport Tan Leather",
       "Machine Gray Metallic + Black Leather",
     ],
-    "25-s-carbon-edition": [
-      "Polymetal Gray Metallic + Black Leather (red stitching)",
-      "Polymetal Gray Metallic + Red Leather",
-    ],
-    "25-carbon-turbo": [
-      "Zircon Sand Metallic + Terracotta Leather",
-      "Rhodium White Metallic + Terracotta Leather",
-    ],
-    "25-turbo-premium": [
-      "Jet Black Mica + Black Leather",
-      "Soul Red Crystal Metallic + Black Leather",
-      "Machine Gray Metallic + Black Leather",
-    ],
-    "25-turbo-signature": [
-      "Jet Black Mica + Caturra Brown Nappa Leather",
-      "Machine Gray Metallic + Caturra Brown Nappa Leather",
-      "Soul Red Crystal Metallic + Caturra Brown Nappa Leather",
-    ],
   },
 };
 
@@ -657,9 +598,6 @@ function getTrimPerfSpec(modelId: string, trimId: string): TrimPerfSpec | null {
     return { eng: "2.5H", hp: "219", trq: "163" };
   }
   if (modelId === "cx-5") {
-    if (trimId.includes("turbo") || trimId.includes("carbon-turbo")) {
-      return { eng: "2.5T", hp: "256", trq: "320" };
-    }
     return { eng: "2.5", hp: "187", trq: "186" };
   }
   if (modelId === "cx-70" || modelId === "cx-90") {
@@ -677,19 +615,8 @@ function getTrimPerfSpec(modelId: string, trimId: string): TrimPerfSpec | null {
   return null;
 }
 
-function getModelDimensions(
-  modelId: string,
-  year: ModelYear,
-): TrimFeatureItem[] {
-  if (modelId === "cx-5") {
-    return MODEL_DIMENSIONS_CX5[year];
-  }
+function getModelDimensions(modelId: string): TrimFeatureItem[] {
   return MODEL_DIMENSIONS[modelId] ?? [];
-}
-
-function getModelDimensionDiff(modelId: string, year: ModelYear): TrimFeatureItem[] {
-  if (year !== 2026) return [];
-  return MODEL_DIMENSION_DIFF_2026[modelId] ?? [];
 }
 
 function getColorCombinationsForTrim(
@@ -773,10 +700,9 @@ function getModelTrimColorFeatures(
 function getModelTrimWheelSpecs(
   modelId: string,
   trims: ModelTrim[],
-  year: ModelYear,
 ): TrimWheelSpecFeature[] {
   return trims.map((trim) => {
-    const wheel = getTrimWheelSpec(modelId, trim.id, year);
+    const wheel = getTrimWheelSpec(modelId, trim.id);
     return {
       name: trim.name,
       size: wheel.size,
@@ -861,7 +787,6 @@ function TrimPerfRow({ spec }: { spec: TrimPerfSpec }) {
 }
 
 export function MazdaModelExplorer() {
-  const [year, setYear] = useState<ModelYear>(2026);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [compareMode, setCompareMode] = useState(false);
   const [compareStep, setCompareStep] = useState<1 | 2>(1);
@@ -870,12 +795,15 @@ export function MazdaModelExplorer() {
     a: ComparePick;
     b: ComparePick;
   } | null>(null);
+  const [featureFilterOpen, setFeatureFilterOpen] = useState(false);
+  const [trimFeatureFilter, setTrimFeatureFilter] =
+    useState<TrimFeatureFilterSelection | null>(null);
   const [cpoOpen, setCpoOpen] = useState(false);
   const [leaseFinanceOpen, setLeaseFinanceOpen] = useState(false);
   const [leaseFinanceSelection, setLeaseFinanceSelection] =
     useState<LeaseFinanceSelection | null>(null);
 
-  const models = useMemo(() => getModelsForYear(year), [year]);
+  const models = MAZDA_MODELS;
 
   const selected = useMemo(
     () => models.find((m) => m.id === selectedId) ?? null,
@@ -884,21 +812,13 @@ export function MazdaModelExplorer() {
 
   const firstPickLabel = useMemo(
     () =>
-      compareFirst ? trimLabelForPick(compareFirst, models, year) : null,
-    [compareFirst, models, year],
+      compareFirst ? trimLabelForPick(compareFirst, models) : null,
+    [compareFirst, models],
   );
-
-  function onYearChange(next: ModelYear) {
-    setYear(next);
-    setSelectedId(null);
-    setCompareMode(false);
-    setCompareStep(1);
-    setCompareFirst(null);
-    setComparePair(null);
-  }
 
   function closeTrimsModal() {
     setSelectedId(null);
+    setTrimFeatureFilter(null);
     if (!compareMode) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -969,18 +889,28 @@ export function MazdaModelExplorer() {
           Choose a model
         </h1>
         <p className="mx-auto mt-3 max-w-xl px-1 text-sm text-pretty text-zinc-600 sm:text-base dark:text-zinc-400">
-          Pick a model year, tap a vehicle, and compare trims in the overlay
-          that opens on top of this list.
+          Tap a 2026 vehicle and compare trims in the overlay that opens on top
+          of this list.
         </p>
 
-        <div className="mt-5 flex flex-col items-center gap-3 sm:mt-6">
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:mt-6 sm:gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setFeatureFilterOpen(true);
+              if (compareMode) cancelCompareMode();
+            }}
+            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 sm:px-5 sm:py-2 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+          >
+            Filter by features
+          </button>
           <button
             type="button"
             onClick={() => {
               openLeaseFinance();
               if (compareMode) cancelCompareMode();
             }}
-            className="inline-flex min-h-11 w-full max-w-md items-center justify-center rounded-full border border-zinc-300 bg-zinc-50 px-5 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 sm:min-h-0 sm:w-auto sm:py-2 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 sm:px-5 sm:py-2 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
           >
             Lease vs finance
           </button>
@@ -990,7 +920,7 @@ export function MazdaModelExplorer() {
               setCpoOpen(true);
               if (compareMode) cancelCompareMode();
             }}
-            className="inline-flex min-h-11 w-full max-w-md items-center justify-center rounded-full border border-[var(--mazda-accent,#c40012)]/40 bg-white px-5 py-2.5 text-sm font-medium text-[var(--mazda-accent,#c40012)] transition-colors hover:bg-[var(--mazda-accent,#c40012)]/5 sm:min-h-0 sm:w-auto sm:py-2 dark:border-[var(--mazda-accent,#c40012)]/50 dark:bg-zinc-950 dark:hover:bg-[var(--mazda-accent,#c40012)]/10"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-[var(--mazda-accent,#c40012)]/40 bg-white px-4 py-2.5 text-sm font-medium text-[var(--mazda-accent,#c40012)] transition-colors hover:bg-[var(--mazda-accent,#c40012)]/5 sm:px-5 sm:py-2 dark:border-[var(--mazda-accent,#c40012)]/50 dark:bg-zinc-950 dark:hover:bg-[var(--mazda-accent,#c40012)]/10"
           >
             Certified Pre-Owned benefits
           </button>
@@ -999,7 +929,7 @@ export function MazdaModelExplorer() {
             onClick={() =>
               compareMode ? cancelCompareMode() : startCompareMode()
             }
-            className={`inline-flex min-h-11 w-full max-w-md items-center justify-center rounded-full border px-5 py-2.5 text-sm font-medium transition-colors sm:min-h-0 sm:w-auto sm:py-2 ${
+            className={`inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border px-4 py-2.5 text-sm font-medium transition-colors sm:px-5 sm:py-2 ${
               compareMode
                 ? "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
                 : "border-zinc-300 bg-zinc-50 text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
@@ -1031,27 +961,6 @@ export function MazdaModelExplorer() {
             ) : null}
           </div>
         ) : null}
-
-        <div
-          className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:mt-8 sm:inline-flex sm:flex-nowrap sm:gap-0 sm:rounded-full sm:border sm:border-zinc-200 sm:bg-zinc-100/80 sm:p-1 dark:sm:border-zinc-700 dark:sm:bg-zinc-900/80"
-          role="group"
-          aria-label="Model year"
-        >
-          {MAZDA_MODEL_YEARS.map((y) => (
-            <button
-              key={y}
-              type="button"
-              onClick={() => onYearChange(y)}
-              className={`min-h-11 min-w-[5.5rem] rounded-full px-5 py-2.5 text-sm font-medium transition-colors sm:min-h-0 sm:py-2 ${
-                year === y
-                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-50"
-                  : "border border-zinc-200 bg-zinc-50 text-zinc-600 hover:text-zinc-900 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 sm:border-0 sm:bg-transparent dark:sm:bg-transparent"
-              }`}
-            >
-              {y}
-            </button>
-          ))}
-        </div>
       </header>
 
       <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
@@ -1059,10 +968,12 @@ export function MazdaModelExplorer() {
           <li key={model.id}>
             <ModelCard
               model={model}
-              year={year}
               selected={selectedId === model.id}
               compareHint={compareMode}
-              onSelect={() => setSelectedId(model.id)}
+              onSelect={() => {
+                setTrimFeatureFilter(null);
+                setSelectedId(model.id);
+              }}
             />
           </li>
         ))}
@@ -1071,21 +982,37 @@ export function MazdaModelExplorer() {
       {selected ? (
         <TrimsModal
           model={selected}
-          year={year}
           onClose={closeTrimsModal}
           compareSlot={trimModalCompareSlot}
           onPickTrimForCompare={compareMode ? onTrimPickedForCompare : undefined}
           onOpenLeaseFinance={openLeaseFinance}
+          trimmedTrimIds={trimFeatureFilter?.matchingTrimIds}
+          featureFilterSummary={
+            trimFeatureFilter
+              ? `${trimFeatureFilter.selectedFeatureNames.length} selected feature${trimFeatureFilter.selectedFeatureNames.length === 1 ? "" : "s"}`
+              : undefined
+          }
         />
       ) : null}
 
       {comparePair ? (
         <CompareTrimsModal
-          year={year}
           models={models}
           pickA={comparePair.a}
           pickB={comparePair.b}
           onClose={closeComparePairModal}
+        />
+      ) : null}
+
+      {featureFilterOpen ? (
+        <TrimFeatureFilterModal
+          models={models}
+          onClose={() => setFeatureFilterOpen(false)}
+          onViewTrims={(selection) => {
+            setTrimFeatureFilter(selection);
+            setSelectedId(selection.modelId);
+            setFeatureFilterOpen(false);
+          }}
         />
       ) : null}
 
@@ -1130,13 +1057,11 @@ function SharedSafetyCompareBlock({ items }: { items: TrimFeatureItem[] }) {
 }
 
 function CompareTrimsModal({
-  year,
   models,
   pickA,
   pickB,
   onClose,
 }: {
-  year: ModelYear;
   models: MazdaModel[];
   pickA: ComparePick;
   pickB: ComparePick;
@@ -1147,12 +1072,12 @@ function CompareTrimsModal({
   const modelA = models.find((m) => m.id === pickA.modelId);
   const modelB = models.find((m) => m.id === pickB.modelId);
   const lineA = useMemo(
-    () => getModelTrimLine(pickA.modelId, year),
-    [pickA.modelId, year],
+    () => getModelTrimLine(pickA.modelId),
+    [pickA.modelId],
   );
   const lineB = useMemo(
-    () => getModelTrimLine(pickB.modelId, year),
-    [pickB.modelId, year],
+    () => getModelTrimLine(pickB.modelId),
+    [pickB.modelId],
   );
   const trimsA = lineA?.trims ?? [];
   const trimsB = lineB?.trims ?? [];
@@ -1224,7 +1149,16 @@ function CompareTrimsModal({
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm text-pretty text-zinc-600 dark:text-zinc-400">
                   Starting MSRP and features side by side for the two trims you
-                  selected ({year}).
+                  selected (2026). {MSRP_SECTION_INTRO} Confirm pricing at{" "}
+                  <a
+                    href="https://www.mazdausa.com"
+                    className="font-medium text-zinc-800 underline underline-offset-2 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-100"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Mazda USA
+                  </a>
+                  .
                 </p>
               </div>
               <button
@@ -1246,7 +1180,7 @@ function CompareTrimsModal({
                 <div className="min-w-0 space-y-4">
                   <div className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-900/50">
                     <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                      {year}
+                      2026
                     </p>
                     <p className="mt-1 text-base font-semibold text-zinc-900 dark:text-zinc-50">
                       {modelA.name}
@@ -1260,7 +1194,6 @@ function CompareTrimsModal({
                   />
                   <TrimPricingCard
                     trim={trimA}
-                    year={year}
                     previousTrimName={previousNameA}
                     modelId={modelA.id}
                   />
@@ -1268,7 +1201,7 @@ function CompareTrimsModal({
                 <div className="min-w-0 space-y-4">
                   <div className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-900/50">
                     <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                      {year}
+                      2026
                     </p>
                     <p className="mt-1 text-base font-semibold text-zinc-900 dark:text-zinc-50">
                       {modelB.name}
@@ -1282,7 +1215,6 @@ function CompareTrimsModal({
                   />
                   <TrimPricingCard
                     trim={trimB}
-                    year={year}
                     previousTrimName={previousNameB}
                     modelId={modelB.id}
                   />
@@ -1298,18 +1230,20 @@ function CompareTrimsModal({
 
 function TrimsModal({
   model,
-  year,
   onClose,
   compareSlot,
   onPickTrimForCompare,
   onOpenLeaseFinance,
+  trimmedTrimIds,
+  featureFilterSummary,
 }: {
   model: MazdaModel;
-  year: ModelYear;
   onClose: () => void;
   compareSlot?: 1 | 2;
   onPickTrimForCompare?: (trimId: string) => void;
   onOpenLeaseFinance?: (selection: LeaseFinanceSelection) => void;
+  trimmedTrimIds?: string[];
+  featureFilterSummary?: string;
 }) {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const compareMode = Boolean(compareSlot && onPickTrimForCompare);
@@ -1356,12 +1290,13 @@ function TrimsModal({
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-6 sm:pb-6 md:p-8 md:pb-8">
             <TrimPricingSection
               model={model}
-              year={year}
               onClose={onClose}
               closeButtonRef={closeBtnRef}
               compareSlot={compareSlot}
               onPickTrimForCompare={onPickTrimForCompare}
               onOpenLeaseFinance={onOpenLeaseFinance}
+              trimmedTrimIds={trimmedTrimIds}
+              featureFilterSummary={featureFilterSummary}
             />
           </div>
         </div>
@@ -1467,38 +1402,43 @@ function TrimFeatureLine({
 
 function TrimPricingSection({
   model,
-  year,
   onClose,
   closeButtonRef,
   compareSlot,
   onPickTrimForCompare,
   onOpenLeaseFinance,
+  trimmedTrimIds,
+  featureFilterSummary,
 }: {
   model: MazdaModel;
-  year: ModelYear;
   onClose: () => void;
   closeButtonRef?: RefObject<HTMLButtonElement | null>;
   compareSlot?: 1 | 2;
   onPickTrimForCompare?: (trimId: string) => void;
   onOpenLeaseFinance?: (selection: LeaseFinanceSelection) => void;
+  trimmedTrimIds?: string[];
+  featureFilterSummary?: string;
 }) {
-  const trimLine = useMemo(
-    () => getModelTrimLine(model.id, year),
-    [model.id, year],
+  const trimLine = useMemo(() => getModelTrimLine(model.id), [model.id]);
+  const allTrims = trimLine?.trims ?? [];
+  const trimmedIdSet = useMemo(
+    () => (trimmedTrimIds ? new Set(trimmedTrimIds) : null),
+    [trimmedTrimIds],
   );
-  const trims = trimLine?.trims ?? [];
+  const trims = useMemo(() => {
+    if (!trimmedIdSet) {
+      return allTrims;
+    }
+    return allTrims.filter((trim) => trimmedIdSet.has(trim.id));
+  }, [allTrims, trimmedIdSet]);
   const sharedSafety = trimLine?.sharedSafetyFeatures ?? [];
   const dimensions = useMemo(
-    () => getModelDimensions(model.id, year),
-    [model.id, year],
-  );
-  const dimensionDiff = useMemo(
-    () => getModelDimensionDiff(model.id, year),
-    [model.id, year],
+    () => getModelDimensions(model.id),
+    [model.id],
   );
   const trimWheelSpecs = useMemo(
-    () => getModelTrimWheelSpecs(model.id, trims, year),
-    [model.id, trims, year],
+    () => getModelTrimWheelSpecs(model.id, trims),
+    [model.id, trims],
   );
   const comparePick = Boolean(compareSlot && onPickTrimForCompare);
 
@@ -1512,11 +1452,16 @@ function TrimPricingSection({
           >
             {model.name}{" "}
             <span className="font-normal text-zinc-500 dark:text-zinc-400">
-              ({year}) trims
+              (2026) trims
             </span>
             {comparePick ? (
               <span className="mt-1 block text-sm font-normal text-[var(--mazda-accent,#c40012)]">
                 Comparison {compareSlot} of 2 — tap a trim below
+              </span>
+            ) : featureFilterSummary ? (
+              <span className="mt-1 block text-sm font-normal text-[var(--mazda-accent,#c40012)]">
+                Showing {trims.length} trim{trims.length === 1 ? "" : "s"} matching{" "}
+                {featureFilterSummary}
               </span>
             ) : null}
           </h2>
@@ -1535,8 +1480,7 @@ function TrimPricingSection({
           </button>
         </div>
         <p className="mt-3 max-w-2xl text-sm text-pretty text-zinc-600 dark:text-zinc-400 sm:mt-4 md:mt-2">
-          Starting MSRP is for comparison only. MSRP excludes taxes, title,
-          license, options, and destination unless noted. Confirm pricing at{" "}
+          {MSRP_SECTION_INTRO} Confirm pricing at{" "}
           <a
             href="https://www.mazdausa.com"
             className="font-medium text-zinc-800 underline underline-offset-2 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-100"
@@ -1554,7 +1498,9 @@ function TrimPricingSection({
 
       {trims.length === 0 ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Trim data for this model is not available yet.
+          {trimmedIdSet
+            ? "No trims match your selected features for this model."
+            : "Trim data for this model is not available yet."}
         </p>
       ) : (
         <>
@@ -1566,18 +1512,6 @@ function TrimPricingSection({
               <p className="mt-2 text-sm text-pretty text-zinc-600 dark:text-zinc-400">
                 Key exterior and cargo dimensions for this model.
               </p>
-              {dimensionDiff.length > 0 ? (
-                <ul className="mt-3 flex flex-col gap-3">
-                  {dimensionDiff.map((item, i) => (
-                    <TrimFeatureLine
-                      key={`dimensions-diff-${i}-${item.name}`}
-                      feature={item}
-                      bulletClassName="mt-2 bg-[var(--mazda-accent,#c40012)]"
-                      titleClassName="text-sm font-medium text-[var(--mazda-accent,#c40012)]"
-                    />
-                  ))}
-                </ul>
-              ) : null}
               <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5 xl:grid-cols-3">
                 {dimensions.map((item, i) => (
                   <TrimFeatureLine
@@ -1655,7 +1589,6 @@ function TrimPricingSection({
               <li key={`${model.id}-${trim.id}`}>
                 <TrimPricingCard
                   trim={trim}
-                  year={year}
                   previousTrimName={
                     trim.hidePreviousTrimComparison
                       ? null
@@ -1680,7 +1613,7 @@ function TrimPricingSection({
                           if (initialMsrp === null) return;
                           onOpenLeaseFinance({
                             initialMsrp,
-                            vehicleLabel: `${year} ${model.name} — ${trim.name}`,
+                            vehicleLabel: `2026 ${model.name} — ${trim.name}`,
                           });
                         }
                   }
@@ -1697,7 +1630,6 @@ function TrimPricingSection({
 function TrimPricingCard({
   trim,
   modelId,
-  year,
   previousTrimName,
   comparePick,
   onSelectForCompare,
@@ -1705,7 +1637,6 @@ function TrimPricingCard({
 }: {
   trim: ModelTrim;
   modelId: string;
-  year: ModelYear;
   previousTrimName: string | null;
   comparePick?: boolean;
   onSelectForCompare?: () => void;
@@ -1714,20 +1645,22 @@ function TrimPricingCard({
   const perfSpec = getTrimPerfSpec(modelId, trim.id);
   const [trimImageFailed, setTrimImageFailed] = useState(false);
   const trimImageSrc = useMemo(
-    () => getTrimImageUrl(modelId, trim.id, year),
-    [modelId, trim.id, year],
+    () => getTrimImageUrl(modelId, trim.id),
+    [modelId, trim.id],
   );
-  const displayImageSrc = trimImageSrc;
+  const trimImageClassName = useMemo(
+    () => getTrimImageClassName(trimImageSrc),
+    [trimImageSrc],
+  );
 
   return (
     <article className="flex h-full min-w-0 flex-col rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 md:p-6 dark:border-zinc-700 dark:bg-zinc-950">
-      <div className="mb-4 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/60">
+      <div className="relative mb-4 aspect-[16/10] w-full overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/60">
         <Image
-          src={displayImageSrc}
+          src={trimImageSrc}
           alt={`${trim.name} exterior`}
-          width={720}
-          height={360}
-          className="h-auto w-full object-contain"
+          fill
+          className={trimImageClassName}
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 420px"
           onError={() => {
             if (!trimImageFailed) setTrimImageFailed(true);
@@ -1763,6 +1696,7 @@ function TrimPricingCard({
         <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-900 tabular-nums sm:text-3xl dark:text-zinc-50">
           {trim.startingMsrp}
         </p>
+        <MsrpPriceDisclaimer />
         {onOpenLeaseFinance ? (
           <button
             type="button"
@@ -1830,7 +1764,7 @@ function TrimPricingCard({
       </div>
 
       <p className="mt-4 text-xs text-pretty text-zinc-500 sm:mt-5 dark:text-zinc-500">
-        Feature availability varies by trim and model year.
+        Feature availability varies by trim.
       </p>
     </article>
   );
@@ -1838,25 +1772,20 @@ function TrimPricingCard({
 
 function ModelCard({
   model,
-  year,
   selected,
   compareHint,
   onSelect,
 }: {
   model: MazdaModel;
-  year: ModelYear;
   selected: boolean;
   compareHint?: boolean;
   onSelect: () => void;
 }) {
   const [imageFailed, setImageFailed] = useState(false);
-  const imageSrc = useMemo(
-    () => getMazdaUsaImageUrl(model.id, year),
-    [model.id, year],
-  );
+  const imageSrc = useMemo(() => getMazdaUsaImageUrl(model.id), [model.id]);
   const imageClassName = useMemo(
-    () => getModelCardImageClassName(model.id, year),
-    [model.id, year],
+    () => getModelCardImageClassName(model.id),
+    [model.id],
   );
 
   useEffect(() => {
@@ -1898,7 +1827,7 @@ function ModelCard({
       </div>
       <div className="flex flex-1 flex-col gap-1 border-t border-zinc-100 px-3 py-3 sm:px-4 sm:py-4 dark:border-zinc-800">
         <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-          {year}
+          2026
         </span>
         <span className="text-base font-semibold text-balance text-zinc-900 sm:text-lg dark:text-zinc-50">
           {model.name}

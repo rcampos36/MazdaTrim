@@ -1,5 +1,3 @@
-import type { ModelYear } from "./mazda-models";
-
 /**
  * Per model: **sharedSafetyFeatures** apply to every trim (shown once above the cards).
  * Each trim: **addedFeatures** and **trimSafetyAdditions** use **TrimFeatureItem** with a short
@@ -8,10 +6,16 @@ import type { ModelYear } from "./mazda-models";
 export interface TrimFeatureItem {
   name: string;
   description: string;
+  /** Lower-trim feature names this item supersedes (for accurate feature filtering). */
+  replaces?: readonly string[];
 }
 
-function feat(name: string, description: string): TrimFeatureItem {
-  return { name, description };
+function feat(
+  name: string,
+  description: string,
+  replaces?: readonly string[],
+): TrimFeatureItem {
+  return replaces ? { name, description, replaces } : { name, description };
 }
 
 export interface ModelTrim {
@@ -23,6 +27,11 @@ export interface ModelTrim {
   popular?: boolean;
   /** When true, hide “all features from previous trim” (e.g. alternate powertrain branch). */
   hidePreviousTrimComparison?: boolean;
+  /**
+   * With hidePreviousTrimComparison, cumulative features inherit from this trim
+   * forward instead of the full ladder (parallel branches: PHEV, Premium, GT AT).
+   */
+  branchFromTrimId?: string;
 }
 
 export interface ModelTrimLine {
@@ -195,53 +204,6 @@ const SHARED_SAFETY_CX50_HYBRID: TrimFeatureItem[] = [
     "Engineered casing and placement to help shield the hybrid battery pack from road debris and collision intrusion.",
   ),
   ...SHARED_SAFETY_CX50_GAS.slice(8),
-];
-
-/**
- * 2025 Mazda CX-5 (2nd gen) — standard i-Activsense® on 2.5 S baseline.
- * @see https://news.mazdausa.com/2024-07-16-2025-Mazda-CX-5-Pricing-and-Packaging
- */
-const SHARED_SAFETY_CX5_2025: TrimFeatureItem[] = [
-  feat(
-    "Blind Spot Monitoring",
-    "Indicates when a vehicle is in an adjacent lane blind spot.",
-  ),
-  feat(
-    "Advanced Smart City Brake Support with pedestrian detection",
-    "Forward braking assist at lower speeds with pedestrian detection (Mazda USA).",
-  ),
-  feat(
-    "Lane Keep Assist",
-    "Can apply gentle steering to help keep the vehicle centered in its lane.",
-  ),
-  feat(
-    "Mazda Radar Cruise Control with Stop & Go",
-    "Adaptive cruise that can brake to a stop and resume in traffic.",
-  ),
-  feat(
-    "Rear Cross Traffic Alert",
-    "Warns of crossing traffic behind you when reversing.",
-  ),
-  feat(
-    "Rear Seat Alert",
-    "Reminds you to check the rear seat after a rear door was used.",
-  ),
-  feat(
-    "Smart Brake Support",
-    "Forward collision warning and automatic emergency braking when a frontal risk is detected.",
-  ),
-  feat(
-    "Eight airbags",
-    "Frontal, side, and curtain supplemental restraints across the cabin.",
-  ),
-  feat(
-    "Dynamic Stability Control and Traction Control System",
-    "Helps maintain control by adjusting throttle and braking at individual wheels.",
-  ),
-  feat(
-    "Tire Pressure Monitoring System (TPMS)",
-    "Warns when a tire is significantly under-inflated.",
-  ),
 ];
 
 /**
@@ -551,7 +513,7 @@ const SAF_SECURITY_SYSTEM = feat(
   "Theft-deterrent alarm and related security functions (per Mazda USA packaging).",
 );
 
-const CX5_TRIM_LINE_2026: ModelTrimLine = {
+const CX5_TRIM_LINE: ModelTrimLine = {
     sharedSafetyFeatures: SHARED_SAFETY_CX5,
     trims: [
       {
@@ -585,8 +547,12 @@ const CX5_TRIM_LINE_2026: ModelTrimLine = {
             "Large touchscreen Mazda Connect with Google built-in, navigation, and voice assistant (Mazda Connected Services trial applies).",
           ),
           feat(
-            '12.9" touchscreen with wired Apple CarPlay® and Android Auto™',
-            "Widescreen center display with wired phone projection plus Google built-in features.",
+            '12.9" center touchscreen',
+            "Standard 12.9-inch center infotainment display with Google built-in (Mazda USA).",
+          ),
+          feat(
+            "Wired Apple CarPlay® and Android Auto™",
+            "Wired phone projection on the 12.9-inch display (Select upgrades to wireless).",
           ),
           feat(
             "Eight-speaker audio with HD Radio™",
@@ -597,8 +563,16 @@ const CX5_TRIM_LINE_2026: ModelTrimLine = {
             "Two USB-C charging ports and two 12-volt power outlets.",
           ),
           feat(
-            "Eight-way manual driver’s seat and six-way manual passenger seat",
-            "Manual seat adjustment for driver and front passenger.",
+            "Eight-way manual driver’s seat",
+            "Manual adjustment for the driver’s seat on the entry 2.5 S.",
+          ),
+          feat(
+            "Six-way manual passenger seat",
+            "Manual adjustment for the front passenger seat on the entry 2.5 S.",
+          ),
+          feat(
+            "Cloth-trimmed seats",
+            "Cloth upholstery standard on 2.5 S (Select upgrades to leatherette).",
           ),
           feat(
             "Rear bench with center armrest, recline, and 40/20/40 split with pass-through",
@@ -637,8 +611,9 @@ const CX5_TRIM_LINE_2026: ModelTrimLine = {
             "Side mirrors fold and heat for parking and cold weather.",
           ),
           feat(
-            "Leatherette seats with cloth center insert",
-            "Leather-like bolsters with breathable cloth centers.",
+            "Leatherette seats with embossed microsuede inserts",
+            "Leatherette bolsters with breathable microsuede cloth centers (Mazda USA Select).",
+            ["Cloth-trimmed seats"],
           ),
           feat(
             "Frameless auto-dimming rearview mirror",
@@ -662,7 +637,8 @@ const CX5_TRIM_LINE_2026: ModelTrimLine = {
           ),
           feat(
             "Wireless Apple CarPlay® and Android Auto™",
-            "Cable-free phone projection on supported devices.",
+            "Cable-free phone projection on the 12.9-inch center display.",
+            ["Wired Apple CarPlay® and Android Auto™"],
           ),
         ],
       },
@@ -673,8 +649,9 @@ const CX5_TRIM_LINE_2026: ModelTrimLine = {
         trimSafetyAdditions: [],
         addedFeatures: [
           feat(
-            '19" alloy wheels',
-            "Larger 19-inch alloy wheels versus 17-inch on lower trims.",
+            '19" alloy wheels machine cut with Black finish',
+            "19-inch machine-cut alloy wheels with black finish versus 17-inch on lower trims.",
+            ['17" wheels'],
           ),
           feat(
             "Roof rails",
@@ -703,6 +680,7 @@ const CX5_TRIM_LINE_2026: ModelTrimLine = {
           feat(
             "10-way power driver’s seat with memory",
             "Power driver seat adjustments including memory presets.",
+            ["Eight-way manual driver’s seat"],
           ),
           feat(
             "HomeLink® integrated in rearview mirror",
@@ -724,6 +702,7 @@ const CX5_TRIM_LINE_2026: ModelTrimLine = {
           feat(
             '19" Black Metallic alloy wheels',
             "Black metallic 19-inch wheels.",
+            ['19" alloy wheels machine cut with Black finish'],
           ),
           feat(
             "Signature Illumination LED headlights and taillights",
@@ -736,10 +715,12 @@ const CX5_TRIM_LINE_2026: ModelTrimLine = {
           feat(
             "Leather seating with ventilated front seats",
             "Leather upholstery with fan-cooled front seats.",
+            ["Leatherette seats with embossed microsuede inserts"],
           ),
           feat(
             "Six-way power front passenger seat",
             "Power adjustments for the front passenger.",
+            ["Six-way manual passenger seat"],
           ),
           feat(
             "Heated rear seats",
@@ -752,6 +733,7 @@ const CX5_TRIM_LINE_2026: ModelTrimLine = {
           feat(
             "Bose® 12-speaker premium audio with SiriusXM®",
             "Bose® twelve-speaker system with satellite radio capability.",
+            ["Eight-speaker audio with HD Radio™"],
           ),
           feat(
             "Two additional rear USB-C ports",
@@ -774,10 +756,12 @@ const CX5_TRIM_LINE_2026: ModelTrimLine = {
           feat(
             "Hands-free power rear liftgate",
             "Open the liftgate with a hands-free gesture where equipped.",
+            ["Power liftgate"],
           ),
           feat(
-            '15.6" center touchscreen (replaces 12.9")',
+            '15.6" center touchscreen',
             "Largest infotainment screen in the lineup for maps and controls.",
+            ['12.9" center touchscreen'],
           ),
           feat(
             "Steering-wheel paddle shifters",
@@ -792,192 +776,6 @@ const CX5_TRIM_LINE_2026: ModelTrimLine = {
     ],
 };
 
-const CX5_TRIM_LINE_2025: ModelTrimLine = {
-  sharedSafetyFeatures: SHARED_SAFETY_CX5_2025,
-  trims: [
-    {
-      id: "25-s",
-      name: "2.5 S",
-      startingMsrp: "$29,050",
-      trimSafetyAdditions: [],
-      addedFeatures: [
-        feat(
-          "Skyactiv-G 2.5L with cylinder deactivation — 187 hp / 186 lb-ft; EPA-estimated 26 city / 30 highway / 28 combined",
-          "Naturally aspirated four-cylinder with i-stop; six-speed automatic with manual and sport modes; standard i-Activ AWD®.",
-        ),
-        feat(
-          "G-Vectoring Control Plus",
-          "Monitors weight transfer and shifts power for responsive acceleration (Mazda USA).",
-        ),
-        feat(
-          "10.25\" Mazda Connect with multi-function commander knob; wired Apple CarPlay® and Android Auto™ (touch capable); four-speaker audio with HD Radio™",
-          "2025 infotainment with rotary commander control — not the 2026 Google built-in touchscreen-only layout.",
-        ),
-        feat(
-          "Mazda Connected Services trial; cloth seats; push-button start; leather-wrapped steering wheel and shift knob; dual front USB-C; reclining rear seats",
-          "Connected services trial, cloth interior, and front USB-C (Mazda USA).",
-        ),
-        feat(
-          "Automatic on/off LED headlights with High Beam Control; rear roof spoiler; 17\" gray metallic alloy wheels; rain-sensing wipers",
-          "Exterior lighting and wheels on entry 2.5 S.",
-        ),
-      ],
-    },
-    {
-      id: "25-s-select",
-      name: "2.5 S Select",
-      startingMsrp: "$30,380",
-      trimSafetyAdditions: [],
-      addedFeatures: [
-        feat(
-          "Auto-leveling headlights; rear privacy glass; body-color lower bumpers, rocker moldings, and fender trim",
-          "Select exterior upgrades vs. 2.5 S.",
-        ),
-        feat(
-          "Six-way power driver seat; six-way manual passenger seat; six-speaker audio; dual-zone climate control; black leatherette seats; heated front seats",
-          "Select comfort and audio.",
-        ),
-        feat(
-          "Mazda Advanced Keyless Entry; rear-seat A/C vents; rear center armrest; two rear USB-A charging ports",
-          "Keyless entry and second-row convenience.",
-        ),
-      ],
-    },
-    {
-      id: "25-s-preferred",
-      name: "2.5 S Preferred",
-      startingMsrp: "$32,230",
-      trimSafetyAdditions: [],
-      addedFeatures: [
-        feat(
-          "19\" black metallic alloy wheels with machine-cut accents (Dec. 2025 production onward); power sliding-glass moonroof; power rear liftgate",
-          "Larger wheels and powered openings (Mazda USA).",
-        ),
-        feat(
-          "Black or parchment leather seats; eight-way power driver seat with lumbar and two-position memory; six-way power passenger seat",
-          "Leather upholstery and power front seats.",
-        ),
-        feat(
-          "Auto-dimming rearview mirror with HomeLink®",
-          "Dimming mirror with garage-door buttons.",
-        ),
-      ],
-      popular: true,
-    },
-    {
-      id: "25-s-carbon-edition",
-      name: "2.5 S Carbon Edition",
-      startingMsrp: "$32,630",
-      trimSafetyAdditions: [],
-      addedFeatures: [
-        feat(
-          "Polymetal Gray exterior; black or red leather with red stitching; black 19\" wheels; gloss black mirrors, bumpers, rockers, arches, and Signature wing",
-          "Carbon Edition exclusive styling.",
-        ),
-        feat(
-          "Gloss black instrument panel and door trim; red-stitched leather steering wheel and shifter",
-          "Black-accent interior with red stitching.",
-        ),
-        feat(
-          "Bose® premium audio (10 speakers) with Centerpoint® and AudioPilot®; wireless phone charging; wireless Apple CarPlay® and Android Auto™",
-          "Bose® and wireless connectivity exclusive to this package level on the NA lineup.",
-        ),
-      ],
-    },
-    {
-      id: "25-s-premium-plus",
-      name: "2.5 S Premium Plus",
-      startingMsrp: "$35,680",
-      trimSafetyAdditions: [SAF_360, SAF_AFS],
-      addedFeatures: [
-        feat(
-          "Mi-Drive (Normal, Off-Road, Sport)",
-          "Selectable drive modes for varied conditions.",
-        ),
-        feat(
-          "360° View Monitor; front and rear parking sensors; gray metallic 19\" alloy wheels; power-folding heated mirrors; windshield wiper de-icer; body-color exterior trim",
-          "Parking assistance and Premium Plus exterior (Mazda USA).",
-        ),
-        feat(
-          "Windshield-projected Active Driving Display; heated steering wheel; ventilated front seats; heated rear seats; 7\" LCD multi-information meter; SiriusXM® three-month trial; paddle shifters; contrasting interior stitching",
-          "Premium Plus interior and driver information.",
-        ),
-      ],
-    },
-    {
-      id: "25-carbon-turbo",
-      name: "2.5 Carbon Turbo",
-      startingMsrp: "$37,200",
-      hidePreviousTrimComparison: true,
-      trimSafetyAdditions: [SAF_360],
-      addedFeatures: [
-        feat(
-          "Skyactiv-G 2.5 Turbo — 256 hp / 320 lb-ft (premium fuel) or 227 hp / 310 lb-ft (regular)",
-          "Turbocharged performance with standard i-Activ AWD®.",
-        ),
-        feat(
-          "Zircon Sand Metallic or Rhodium White exterior; terracotta leather with black suede-like inserts; black headliner; 19\" black metallic wheels",
-          "Carbon Turbo exclusive colors and interior.",
-        ),
-        feat(
-          "Wireless charging; wireless Apple CarPlay® and Android Auto™; heated and ventilated front seats; paddle shifters; Active Driving Display; 360° View Monitor; front and rear parking sensors",
-          "Turbo convenience and tech shared with other 2.5 Turbo grades.",
-        ),
-      ],
-    },
-    {
-      id: "25-turbo-premium",
-      name: "2.5 Turbo Premium",
-      startingMsrp: "$38,280",
-      trimSafetyAdditions: [SAF_TJA],
-      addedFeatures: [
-        feat(
-          "Traffic Jam Assist",
-          "Hands-on low-speed assist in congestion (Mazda USA).",
-        ),
-        feat(
-          "Heated rear seats; automatic power-folding mirrors; windshield wiper de-icer; gloss black front grille",
-          "Comfort and exterior updates vs. Carbon Turbo.",
-        ),
-        feat(
-          "Leather-wrapped heated steering wheel and shifter with red stitching; black instrument cluster and door trim accents",
-          "Turbo Premium interior accents.",
-        ),
-      ],
-    },
-    {
-      id: "25-turbo-signature",
-      name: "2.5 Turbo Signature",
-      startingMsrp: "$41,080",
-      trimSafetyAdditions: [
-        SAF_SBS_REAR_AND_RCTB,
-        feat(
-          "Driver Attention Alert",
-          "Encourages a break if steering patterns suggest reduced attention (added on Turbo Signature; Mazda USA).",
-        ),
-      ],
-      addedFeatures: [
-        feat(
-          "Silver metallic 19\" alloy wheels; aluminum silver bumper trim; gunmetal front grille",
-          "Signature exterior brightwork.",
-        ),
-        feat(
-          "Caturra Brown Nappa leather; genuine woodgrain; LED interior and ambient foot lighting; frameless auto-dimming rearview mirror",
-          "Signature interior materials.",
-        ),
-        feat(
-          "Mazda Navigation System with Off-Road Navigation; Active Driving Display with Traffic Sign Recognition; SiriusXM® Traffic & Travel Link three-year trial",
-          "Navigation, head-up display, and extended SiriusXM services.",
-        ),
-      ],
-    },
-  ],
-};
-
-const TRIM_LINES_CX5_BY_YEAR: Record<ModelYear, ModelTrimLine> = {
-  2025: CX5_TRIM_LINE_2025,
-  2026: CX5_TRIM_LINE_2026,
-};
 
 const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
   "mazda3-sedan": {
@@ -1080,6 +878,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             '18" aluminum-alloy wheels with black finish',
             "Larger black-finish alloy wheels versus the 2.5 S 16-inch silver wheels.",
+            ['16" silver aluminum-alloy wheels'],
           ),
           feat(
             "Black heated door mirrors",
@@ -1121,6 +920,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             '18" silver-finish aluminum-alloy wheels',
             "Silver-finish 18-inch wheels (sedan Preferred; hatchback uses gray metallic per Mazda USA).",
+            ['18" aluminum-alloy wheels with black finish'],
           ),
         ],
       },
@@ -1133,10 +933,12 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Standard i-Activ AWD®",
             "All-wheel drive standard on Carbon Edition for added traction in varied conditions.",
+            ["Front-wheel drive (FWD)"],
           ),
           feat(
             "Red leather-trimmed interior",
             "Distinctive red leather paired with select exterior colors.",
+            ["Black leatherette-trimmed seats"],
           ),
           feat(
             "Exterior colors: Jet Black Mica; available Snowflake White Pearl Mica and Polymetal Gray Metallic",
@@ -1145,6 +947,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Wireless Apple CarPlay™ and Android Auto™",
             "Cable-free phone projection on supported devices.",
+            ['Mazda Connect with 8.8" center display'],
           ),
           feat(
             "HD Radio™",
@@ -1161,6 +964,10 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             '18" black aluminum-alloy wheels',
             "Black-finish 18-inch alloy wheels.",
+            [
+              '18" silver-finish aluminum-alloy wheels',
+              '18" aluminum-alloy wheels with black finish',
+            ],
           ),
         ],
       },
@@ -1179,6 +986,12 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Standard i-Activ AWD® and Dynamic Pressure Turbo",
             "AWD with turbocharged 2.5L; up to 250 hp and 320 lb-ft on premium fuel (227 hp / 310 lb-ft on regular).",
+            [
+              "Front-wheel drive (FWD)",
+              "SKYACTIV-G 2.5L engine",
+              "Red leather-trimmed interior",
+              "Black leatherette-trimmed seats",
+            ],
           ),
           feat(
             "Gloss black aerodynamic accents and black rear spoiler (sedan)",
@@ -1187,6 +1000,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Black or white leather-trimmed seats",
             "Leather seating choices on Turbo Premium Plus sedan.",
+            ["Red leather-trimmed interior"],
           ),
           feat(
             "Bose® 12-speaker premium audio",
@@ -1195,6 +1009,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             '10.25" display with touchscreen and wireless Apple CarPlay™ / Android Auto™',
             "Larger screen with touch control when using wireless phone projection.",
+            ['Mazda Connect with 8.8" center display'],
           ),
           feat(
             "Windshield-projected Active Driving Display",
@@ -1328,6 +1143,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             '18" aluminum-alloy wheels with black finish',
             "Larger black-finish alloy wheels versus the 2.5 S 16-inch silver wheels.",
+            ['16" silver aluminum-alloy wheels'],
           ),
           feat(
             "Black heated door mirrors",
@@ -1369,6 +1185,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             '18" gray metallic aluminum-alloy wheels',
             "Gray metallic finish 18-inch wheels on hatchback Preferred (sedan uses silver-finish 18-inch).",
+            ['18" aluminum-alloy wheels with black finish'],
           ),
         ],
       },
@@ -1381,18 +1198,17 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Standard i-Activ AWD®",
             "All-wheel drive standard on Carbon Edition for traction in varied conditions.",
+            ["Front-wheel drive (FWD)"],
           ),
           feat(
             "Red leather-trimmed interior",
             "Red leather paired with Jet Black Mica or available Snowflake White Pearl Mica and Polymetal Gray Metallic (premium paint charges may apply).",
-          ),
-          feat(
-            "All features from 2.5 S Preferred",
-            "Builds on Preferred equipment including moonroof, heated seats, power driver seat, and Preferred-level tech.",
+            ["Black leatherette seats (hatchback standard)"],
           ),
           feat(
             "Wireless Apple CarPlay™ and Android Auto™",
             "Cable-free phone projection on supported devices.",
+            ['Mazda Connect with 8.8" center display'],
           ),
           feat(
             "HD Radio™",
@@ -1409,6 +1225,10 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             '18" black aluminum-alloy wheels',
             "Black-finish 18-inch alloy wheels.",
+            [
+              '18" gray metallic aluminum-alloy wheels',
+              '18" aluminum-alloy wheels with black finish',
+            ],
           ),
         ],
       },
@@ -1416,6 +1236,8 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
         id: "25-s-premium",
         name: "2.5 S Premium",
         startingMsrp: "$31,360",
+        hidePreviousTrimComparison: true,
+        branchFromTrimId: "25-s-preferred",
         trimSafetyAdditions: [SAF_TSR, SAF_AFS],
         addedFeatures: [
           feat(
@@ -1425,6 +1247,10 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Front-wheel drive (FWD) with SKYACTIV-MT 6-speed manual",
             "Six-speed manual gearbox for drivers who prefer to shift themselves; FWD only on this trim.",
+            [
+              "SKYACTIV-Drive 6-speed automatic",
+              "Black leatherette seats (hatchback standard)",
+            ],
           ),
           feat(
             "Bose® 12-speaker premium audio with aluminum speaker grilles",
@@ -1471,6 +1297,12 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Standard i-Activ AWD® and Dynamic Pressure Turbo",
             "AWD with turbocharged 2.5L; up to 250 hp and 320 lb-ft on premium fuel (227 hp / 310 lb-ft on regular).",
+            [
+              "Front-wheel drive (FWD)",
+              "SKYACTIV-G 2.5L engine",
+              "Red leather-trimmed interior",
+              "Black leatherette-trimmed seats",
+            ],
           ),
           feat(
             "Gloss black aero accents, rear spoiler, and front air dam (hatchback)",
@@ -1479,6 +1311,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Black or red leather-trimmed seats",
             "Leather seating choices on Turbo Premium Plus hatchback.",
+            ["Red leather-trimmed interior"],
           ),
           feat(
             "Bose® 12-speaker premium audio",
@@ -1487,6 +1320,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             '10.25" display with touchscreen and wireless Apple CarPlay™ / Android Auto™',
             "Larger screen with touch control when using wireless phone projection.",
+            ['Mazda Connect with 8.8" center display'],
           ),
           feat(
             "Windshield-projected Active Driving Display",
@@ -1616,6 +1450,9 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "18\" aluminum-alloy wheels with Black Metallic finish",
             "Larger black-finish alloys versus the 2.5 S 16-inch gray wheels.",
+            [
+              '16" gray metallic aluminum-alloy wheels',
+            ],
           ),
           feat(
             "Heated black door mirrors with memory and reverse tilt-down",
@@ -1644,6 +1481,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Leatherette seating (Black or Greige)",
             "Leather-like upholstery in black or greige depending on build.",
+            ["Black cloth seats and automatic climate control"],
           ),
           feat(
             "Leather-wrapped steering wheel and shift knob",
@@ -1681,6 +1519,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             '10.25" center display with touchscreen',
             "Larger widescreen with touchscreen for Apple CarPlay® and Android Auto™ on supported apps.",
+            ['Mazda Connect with 8.8" display'],
           ),
           feat(
             "Wireless phone charging",
@@ -1701,10 +1540,12 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Leatherette seats",
             "Leather-like seating surfaces on this grade.",
+            ["Leatherette seating (Black or Greige)"],
           ),
           feat(
             '18" silver metallic aluminum-alloy wheels',
             "Silver metallic finish 18-inch alloys (versus Select Sport’s black finish).",
+            ['18" aluminum-alloy wheels with Black Metallic finish'],
           ),
           feat(
             "Body-colored door mirrors",
@@ -1733,6 +1574,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             '18" black metallic aluminum-alloy wheels',
             "Black metallic wheels coordinated with Aire exterior trim.",
+            ['18" silver metallic aluminum-alloy wheels'],
           ),
           feat(
             "Black roof rails and black side mirrors",
@@ -1741,6 +1583,10 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "White leatherette seats with gray cloth inserts",
             "Light interior palette with contrasting gray textile inserts.",
+            [
+              "Leatherette seats",
+              "Leatherette seating (Black or Greige)",
+            ],
           ),
           feat(
             "Gray suede-like interior trim and light gray stitching",
@@ -1761,10 +1607,19 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Red leather-trimmed seats and interior accents",
             "Red leather seating and coordinated interior trim.",
+            [
+              "Leatherette seats",
+              "Leatherette seating (Black or Greige)",
+              "White leatherette seats with gray cloth inserts",
+            ],
           ),
           feat(
             '18" black aluminum-alloy wheels',
             "Black alloy wheels paired with the Carbon color scheme.",
+            [
+              '18" silver metallic aluminum-alloy wheels',
+              '18" black metallic aluminum-alloy wheels',
+            ],
           ),
           feat(
             "Gloss black heated door mirrors",
@@ -1801,6 +1656,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Black or white leather-trimmed seats",
             "Leather seating choices building on Carbon Edition content.",
+            ["Red leather-trimmed seats and interior accents"],
           ),
           feat(
             "Power liftgate",
@@ -1809,6 +1665,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             '18" silver metallic aluminum-alloy wheels',
             "Silver metallic 18-inch wheels as specified for this grade.",
+            ['18" black aluminum-alloy wheels'],
           ),
           feat(
             "LED signature illumination headlights and taillights",
@@ -1825,6 +1682,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "SKYACTIV-G 2.5 Dynamic Pressure Turbo",
             "Up to 250 hp and 320 lb-ft on 93-octane premium; 227 hp and 310 lb-ft on regular 87-octane fuel.",
+            ["SKYACTIV-G 2.5L engine (186 hp / 186 lb-ft)"],
           ),
           feat(
             "Strong low-end torque (2,000–2,500 rpm)",
@@ -1835,8 +1693,19 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
             "Same modern black-badge look as the 2.5 S Aire Edition with a light cabin theme.",
           ),
           feat(
+            '18" black metallic aluminum-alloy wheels',
+            "Black metallic wheels coordinated with Turbo Aire exterior trim.",
+            ['18" silver metallic aluminum-alloy wheels'],
+          ),
+          feat(
             "White leatherette with gray suede-like inserts",
             "Seats with gray suede-like inserts matching interior trim and gray stitching.",
+            [
+              "Black or white leather-trimmed seats",
+              "Red leather-trimmed seats and interior accents",
+              "Leatherette seats",
+              "Leatherette seating (Black or Greige)",
+            ],
           ),
         ],
       },
@@ -1846,6 +1715,11 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
         startingMsrp: "$37,900",
         trimSafetyAdditions: [SAF_CRUISING_TRAFFIC_SUPPORT],
         addedFeatures: [
+          feat(
+            "Black or white leather-trimmed seats",
+            "Leather seating on Turbo Premium Plus building on turbo performance.",
+            ["White leatherette with gray suede-like inserts"],
+          ),
           feat(
             "Gloss black exterior badges",
             "Black-finish Mazda and model badging complementing turbo exterior trim.",
@@ -1978,11 +1852,14 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
         id: "25-s-meridian",
         name: "2.5 S Meridian Edition",
         startingMsrp: "$33,150",
+        hidePreviousTrimComparison: true,
+        branchFromTrimId: "25-s-preferred",
         trimSafetyAdditions: [],
         addedFeatures: [
           feat(
             '18" alloy wheels with all-terrain tires',
             "Larger wheels with all-terrain rubber for mixed-surface confidence.",
+            ['17" Black Metallic alloy wheels'],
           ),
           feat(
             "Black roof rails",
@@ -1991,6 +1868,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Black half leatherette seats (Meridian exclusive)",
             "Black half leatherette upholstery exclusive to this grade.",
+            ["Half leatherette seats with leather-wrapped primary controls."],
           ),
           feat(
             "Exterior colors: Jet Black Mica, Polymetal Gray Metallic, or Zircon Sand Metallic",
@@ -2015,6 +1893,10 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Black leather seats with 20\" Black Metallic machine-finish wheels",
             "Black leather and 20-inch black metallic machine-finished alloys with all-season tires.",
+            [
+              '17" Black Metallic alloy wheels',
+              "Half leatherette seats with leather-wrapped primary controls.",
+            ],
           ),
           feat(
             "Or White Interior Option: white leather, 20\" Silver wheels, silver roof rails",
@@ -2055,6 +1937,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "SKYACTIV-G 2.5L Dynamic Pressure Turbo",
             "256 hp and 320 lb-ft on 93-octane premium; 227 hp and 310 lb-ft on regular 87-octane.",
+            ["SKYACTIV-G 2.5L engine (187 hp / 185 lb-ft)"],
           ),
           feat(
             "Six-speed automatic with paddle shifters and standard i-Activ AWD®",
@@ -2090,11 +1973,16 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
         id: "25-turbo-meridian",
         name: "2.5 Turbo Meridian Edition",
         startingMsrp: "$40,400",
+        hidePreviousTrimComparison: true,
+        branchFromTrimId: "25-turbo",
         trimSafetyAdditions: [SAF_SECONDARY_COLLISION_REDUCTION],
         addedFeatures: [
           feat(
             '18" alloy wheels with all-terrain tires',
             "All-terrain tires on 18-inch wheels for trailhead and mixed surfaces.",
+            [
+              'Black leather seats with 20" Black Metallic machine-finish wheels',
+            ],
           ),
           feat(
             "Side rocker garnish, hood graphics, and outdoor-oriented accessories",
@@ -2107,6 +1995,10 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Terracotta leather seats",
             "Terracotta leather upholstery exclusive to this outdoor-focused turbo trim.",
+            [
+              'Black leather seats with 20" Black Metallic machine-finish wheels',
+              "Or White Interior Option: white leather, 20\" Silver wheels, silver roof rails",
+            ],
           ),
           feat(
             "Heated rear seats and heated steering wheel",
@@ -2152,6 +2044,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
       },
     ],
   },
+  "cx-5": CX5_TRIM_LINE,
   "cx-70": {
     sharedSafetyFeatures: SHARED_SAFETY_CX70,
     trims: [
@@ -2278,6 +2171,9 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Nappa leather (black or red), power panoramic sunroof, windshield wiper de-icer",
             "Nappa upholstery, panoramic roof, and wiper de-icer.",
+            [
+              "Leather-trimmed heated and ventilated front seats; heated rear seats; heated steering wheel",
+            ],
           ),
           feat(
             "150-watt AC-style power outlet (cargo area)",
@@ -2294,6 +2190,9 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "e-Skyactiv®-G 3.3L turbo (up to 340 hp / 369 lb-ft on premium fuel)",
             "High-output inline-6; EPA-estimated 23 city / 28 highway / 25 combined on premium.",
+            [
+              "e-Skyactiv®-G 3.3L inline-6 turbo with M Hybrid Boost (280 hp / 332 lb-ft)",
+            ],
           ),
           feat(
             "Towing mode — up to 5,000 lb with Mazda Genuine Towing Accessories",
@@ -2402,11 +2301,16 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
         id: "phev-sc-plus",
         name: "PHEV SC Plus",
         startingMsrp: "$47,250",
+        hidePreviousTrimComparison: true,
+        branchFromTrimId: "phev-sc",
         trimSafetyAdditions: [SAF_SECONDARY_COLLISION_REDUCTION],
         addedFeatures: [
           feat(
             "Builds on PHEV SC with leather seating and eight-way power passenger seat",
             "Genuine leather and power front passenger seat.",
+            [
+              "Leatherette seats, leather-wrapped wheel and shift knob, eight-way power driver with lumbar, interior LED lighting",
+            ],
           ),
           feat(
             "Two-position driver seat memory, heated and ventilated front seats, heated rear seats, heated steering wheel",
@@ -2472,6 +2376,9 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "21\" silver metallic wheels; piano black garnishes and front grille mesh",
             "Larger wheels and blacked-out trim accents.",
+            [
+              "19\" silver metallic alloy wheels, power liftgate, roof rails, LED headlights (auto on/off, auto-leveling), LED DRLs and taillights, High Beam Control, heated power mirrors with LED turn signals, rain-sensing wipers",
+            ],
           ),
           feat(
             "Ventilated front seats; heated second-row seats; heated steering wheel; eight-way power driver seat with power lumbar and memory; eight-way power passenger seat",
@@ -2480,6 +2387,9 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "12.3\" center display with wireless Apple CarPlay™ and Android Auto™ (touch capable), wireless phone charging",
             "Larger widescreen with wireless projection and Qi charging.",
+            [
+              "10.25\" center display, Mazda Connect™, Apple CarPlay™ and Android Auto™, eight-speaker audio, Mazda Advanced Keyless Entry, push-button start",
+            ],
           ),
           feat(
             "Power sunroof; black or greige leather seats; heated front seats; second-row retractable window shades; third-row dual USB-C (six USB-C total)",
@@ -2507,6 +2417,7 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Sport blackout exterior — gloss black honeycomb grille, black chrome signature wing and \"Inline 6\" badge, 21\" black metallic wheels, black bumpers and door garnish, piano black mirrors and roof rails; blacked-out Mazda logos; automatic power-folding auto-dimming mirrors",
             "Premium Sport visual package with dark trim and folding mirrors.",
+            ['21" silver metallic wheels; piano black garnishes and front grille mesh'],
           ),
           feat(
             "Eight-passenger bench or available seven-passenger second-row captain’s chairs with center walk-through",
@@ -2547,6 +2458,9 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Black or white Nappa leather seats; heated steering wheel; foot lamp illumination; 150-watt accessory power outlet (cargo area)",
             "Nappa upholstery, ambient foot lighting, and in-cargo power.",
+            [
+              "Power sunroof; black or greige leather seats; heated front seats; second-row retractable window shades; third-row dual USB-C (six USB-C total)",
+            ],
           ),
         ],
       },
@@ -2566,6 +2480,9 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "e-Skyactiv® G 3.3 Turbo S — up to 340 hp / 369 lb-ft (premium fuel) or 319 hp on regular; EPA-estimated 23 / 28 / 25",
             "High-output inline-six tuned for flagship performance.",
+            [
+              "e-Skyactiv® G 3.3 Turbo inline-six — 280 hp / 332 lb-ft (regular 87-octane); M-Hybrid Boost 48V; 8-speed automatic; i-Activ AWD®",
+            ],
           ),
           feat(
             "Mi-Drive (Sport, Off-Road, Towing); up to 5,000 lb towing with Mazda Genuine Towing Accessories",
@@ -2646,6 +2563,8 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
         id: "phev-premium-sport",
         name: "PHEV Premium Sport",
         startingMsrp: "$55,300",
+        hidePreviousTrimComparison: true,
+        branchFromTrimId: "phev-preferred",
         trimSafetyAdditions: [
           SAF_EMERGENCY_LANE_KEEPING,
           SAF_BLIND_SPOT_ASSIST,
@@ -2673,6 +2592,8 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
         id: "phev-premium-plus",
         name: "PHEV Premium Plus",
         startingMsrp: "$58,500",
+        hidePreviousTrimComparison: true,
+        branchFromTrimId: "phev-preferred",
         trimSafetyAdditions: [
           SAF_SBS_TURN_ACROSS_FRONT_CROSSING,
           SAF_REAR_SMART_BRAKE_SUPPORT,
@@ -2743,10 +2664,17 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Gloss black front air dam and rear lip spoiler; black metallic 17\" wheels; trunk lid shark fin antenna; body-color high-mount brake light cover",
             "Club exterior and wheel treatment.",
+            [
+              "Metallic black 16\" alloy wheels; dual-tip exhaust; LED headlights, taillights, and DRLs; gloss black door mirrors and high-mount brake light cover; variable-intermittent wipers; rear glass with defogger",
+            ],
           ),
           feat(
             "Vinyl-leather interior; heated cloth seats with suede inserts; piano black seat back bar trim; wireless Apple CarPlay® and Android Auto™; SiriusXM® three-month trial; Bose® nine-speaker premium audio with subwoofer and driver/passenger headrest speakers",
             "Heated seats, wireless phone projection, satellite radio trial, and Bose® with headrest speakers.",
+            [
+              "Leather-wrapped tilt/telescoping steering wheel, leather shift knob and parking brake; cloth bucket seats; six-speaker audio (AM/FM, HD Radio™); dual USB-C; Mazda Advanced Keyless Entry; climate control; removable cup holders; lockable center-rear console",
+              "Black cloth soft top; 8.8\" Mazda Connect display (touch with Apple CarPlay® / Android Auto™); Alexa Built-in",
+            ],
           ),
           feat(
             "Available Brembo® / BBS® / Recaro® package — Brembo® brakes with red calipers, 17\" BBS® forged wheels, heated Recaro® sport seats, aero kit with gloss black side sills and rear bumper skirt, black Alcantara® trim with contrast stitching (soft-top Club; +$5,050 MSRP when equipped)",
@@ -2768,10 +2696,16 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Black soft top; black and machine-finished aluminum alloy wheels; body-color heated door mirrors with auto-dimming driver mirror; door sill trim plates; rain-sensing wipers; auto on/off headlights",
             "Grand Touring exterior and mirror upgrades vs. Club gloss-black accents.",
+            [
+              "Gloss black front air dam and rear lip spoiler; black metallic 17\" wheels; trunk lid shark fin antenna; body-color high-mount brake light cover",
+            ],
           ),
           feat(
             "Automatic air conditioning; frameless auto-dimming rearview mirror with HomeLink®; heated leather-trimmed seats; Mazda Navigation System",
             "Climate control, HomeLink®, leather heat, and built-in navigation.",
+            [
+              "Vinyl-leather interior; heated cloth seats with suede inserts; piano black seat back bar trim; wireless Apple CarPlay® and Android Auto™; SiriusXM® three-month trial; Bose® nine-speaker premium audio with subwoofer and driver/passenger headrest speakers",
+            ],
           ),
         ],
       },
@@ -2779,6 +2713,8 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
         id: "grand-touring-at",
         name: "Grand Touring (6AT)",
         startingMsrp: "$36,650",
+        hidePreviousTrimComparison: true,
+        branchFromTrimId: "sport",
         trimSafetyAdditions: [
           SAF_AFS,
           SAF_HIGH_BEAM_CONTROL,
@@ -2829,6 +2765,8 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
         id: "grand-touring-at",
         name: "Grand Touring (6AT)",
         startingMsrp: "$39,420",
+        hidePreviousTrimComparison: true,
+        branchFromTrimId: "grand-touring",
         trimSafetyAdditions: [
           SAF_AFS,
           SAF_HIGH_BEAM_CONTROL,
@@ -2923,6 +2861,9 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Leather seating in black or red (red interior exclusive to CX-50 Hybrid)",
             "Leather upholstery; Hybrid-only red interior choice.",
+            [
+              "Similarly equipped to CX-50 2.5 S Preferred — eight-way power driver seat with power lumbar, heated side mirrors, heated front seats, available White Interior Option (where offered)",
+            ],
           ),
           feat(
             "Ventilated front seats; Bose® 12-speaker premium audio; SiriusXM® satellite radio with three-month trial",
@@ -2951,6 +2892,9 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
           feat(
             "Unique 19\" split black and machine-polished alloy wheels; silver roof rails and silver exhaust pipes",
             "Premium Plus wheels and silver exterior accents.",
+            [
+              "Unique 17\" black alloy wheels; 10.25\" center display with wireless Apple CarPlay® and Android Auto™; eight-speaker audio; four USB-C ports; wireless phone charging; Alexa Built-in",
+            ],
           ),
           feat(
             "Automatic power-folding side mirrors with memory",
@@ -2968,17 +2912,10 @@ const TRIM_LINES_BY_MODEL: Record<string, ModelTrimLine> = {
 
 export function getModelTrimLine(
   modelId: string,
-  year: ModelYear = 2026,
 ): ModelTrimLine | undefined {
-  if (modelId === "cx-5") {
-    return TRIM_LINES_CX5_BY_YEAR[year];
-  }
   return TRIM_LINES_BY_MODEL[modelId];
 }
 
-export function getTrimsForModel(
-  modelId: string,
-  year: ModelYear = 2026,
-): ModelTrim[] {
-  return getModelTrimLine(modelId, year)?.trims ?? [];
+export function getTrimsForModel(modelId: string): ModelTrim[] {
+  return getModelTrimLine(modelId)?.trims ?? [];
 }

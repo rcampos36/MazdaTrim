@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MazdaTrim — Mazda models & trims",
   description:
-    "Browse Mazda models by year and explore trim levels and features.",
+    "Browse 2026 Mazda models and explore trim levels and features.",
 };
 
 export const viewport = {

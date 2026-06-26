@@ -9,8 +9,6 @@ export type ModelBodyStyle =
   | "roadster"
   | "roadster-rf";
 
-export type ModelYear = 2025 | 2026;
-
 export interface MazdaModel {
   id: string;
   name: string;
@@ -49,43 +47,22 @@ const MAZDA_USA_IMAGE_PATH: Record<string, string> = {
     "/siteassets/vehicles/2025/cx-50-hybrid/04_btv/002_sprites/model-selector/hybrid-premium-plus/2025-cx50-hybrid-premium-plus-wind-chill-pearl-animatedms.png",
 };
 
-/** Model-card hero overrides when the default path is for a different model year. */
-const MAZDA_USA_IMAGE_PATH_BY_YEAR: Partial<
-  Record<ModelYear, Partial<Record<string, string>>>
-> = {
-  2025: {
-    "cx-5":
-      "/siteassets/vehicles/2025/cx-5/05_btv/001_trims/34-jellies/2.5-s/2025-Mazda-CX-5-2.5-S",
-  },
-};
-
 const IMAGE_WIDTH = 960;
 
-export function getMazdaUsaImageUrl(
-  modelId: string,
-  year: ModelYear = 2026,
-): string {
-  const path =
-    MAZDA_USA_IMAGE_PATH_BY_YEAR[year]?.[modelId] ??
-    MAZDA_USA_IMAGE_PATH[modelId];
+export function getMazdaUsaImageUrl(modelId: string): string {
+  const path = MAZDA_USA_IMAGE_PATH[modelId];
   if (!path) {
     throw new Error(`No Mazda USA image path for model "${modelId}"`);
   }
   return `${MAZDA_USA_ORIGIN}${path}?w=${IMAGE_WIDTH}`;
 }
 
-/** Tailwind classes for the model-card photo (jelly assets need inset + contain). */
-export function getModelCardImageClassName(
-  modelId: string,
-  year: ModelYear = 2026,
-): string {
-  if (modelId === "cx-5" && year === 2025) {
-    return "absolute inset-10 object-contain object-center scale-[0.86] sm:inset-12";
-  }
+/** Tailwind classes for the model-card photo (sprite / hero assets). */
+export function getModelCardImageClassName(modelId: string): string {
   return "object-cover object-center scale-[1.14]";
 }
 
-const MODELS_2025: MazdaModel[] = [
+export const MAZDA_MODELS: MazdaModel[] = [
   {
     id: "mazda3-sedan",
     name: "Mazda3 Sedan",
@@ -149,11 +126,6 @@ const MODELS_2025: MazdaModel[] = [
     bodyStyle: "roadster-rf",
     category: "Sports car",
   },
-];
-
-/** 2026 adds the CX-50 Hybrid; other nameplates match the 2025 list for this app. */
-const MODELS_2026: MazdaModel[] = [
-  ...MODELS_2025,
   {
     id: "cx-50-hybrid",
     name: "CX-50 Hybrid",
@@ -162,14 +134,3 @@ const MODELS_2026: MazdaModel[] = [
     category: "SUV",
   },
 ];
-
-export const MAZDA_MODEL_YEARS: ModelYear[] = [2026, 2025];
-
-export const MAZDA_MODELS_BY_YEAR: Record<ModelYear, MazdaModel[]> = {
-  2025: MODELS_2025,
-  2026: MODELS_2026,
-};
-
-export function getModelsForYear(year: ModelYear): MazdaModel[] {
-  return MAZDA_MODELS_BY_YEAR[year];
-}
